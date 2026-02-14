@@ -1,0 +1,12 @@
+[workspace]
+members = [
+    "01-hello-gpu",
+    "02-double-values",
+    "03-vector-add",
+    "04-parallel-sum",
+    "05-double-buffering",
+    "06-market-tick-aggregation",
+    "07-credit-card-fraud-detector",
+    "08-basic-llm",
+]
+resolver = "2"

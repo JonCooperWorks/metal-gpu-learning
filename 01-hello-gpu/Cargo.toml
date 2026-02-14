@@ -1,0 +1,13 @@
+[package]
+name = "hello-gpu"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# metal-rs: Rust bindings for Apple's Metal API.
+# This crate wraps the Objective-C Metal framework so we can call it from Rust.
+metal = "0.33.0"
+
+# objc: Low-level Rust bindings for the Objective-C runtime.
+# We need this for `autoreleasepool`, which manages Objective-C memory.
+objc = "0.2.4"

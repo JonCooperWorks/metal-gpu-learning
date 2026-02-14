@@ -1,0 +1,17 @@
+# Rust / Cargo
+/target/
+
+# macOS
+.DS_Store
+
+# Editor / IDE
+.idea/
+*.swp
+*.swo
+*~
+
+# Build artifacts
+*.o
+*.dylib
+*.so
+*.dll
