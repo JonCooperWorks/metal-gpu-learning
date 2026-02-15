@@ -15,3 +15,9 @@
 *.dylib
 *.so
 *.dll
+
+# Lesson 9 generated artifacts
+09-local-llm-training/artifacts/*.json
+09-local-llm-training/artifacts/*.safetensors
+09-local-llm-training/artifacts/data/
+*.parquet

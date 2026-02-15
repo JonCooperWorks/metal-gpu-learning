@@ -23,6 +23,7 @@ introducing Metal concepts from device discovery to parallel compute kernels.
 | 6 | `06-market-tick-aggregation/` | Real analytics pipeline -- transform market ticks and reduce to VWAP/volatility/min/max |
 | 7 | `07-credit-card-fraud-detector/` | Fraud rules engine -- score transactions and reduce TP/FP/TN/FN + precision/recall/FPR metrics |
 | 8 | `08-basic-llm/` | Basic LLM inference -- single-head attention + tiny autoregressive generation loop |
+| 9 | `09-local-llm-training/` | Local LLM training -- train a tiny transformer with Candle, export JSON weights, and run Rust/Metal inference |
 
 ## How to Run
 

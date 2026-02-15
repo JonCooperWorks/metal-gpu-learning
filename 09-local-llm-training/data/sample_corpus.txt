@@ -1,0 +1,1600 @@
+Metal lets us run many arithmetic operations in parallel.
+Rust lets us control memory layout and data movement explicitly.
+A language model predicts the next token based on previous tokens.
+Training adjusts model weights to reduce cross entropy loss.
+Attention computes weighted combinations of value vectors.
+The query vector compares with key vectors to produce scores.
+Softmax turns attention scores into probabilities.
+Residual connections help optimization stay stable.
+Layer normalization keeps activations numerically well behaved.
+The feed forward network expands then projects hidden states.
+During inference we never update weights.
+During training we update weights after backward pass.
+A dataset is split into train and validation portions.
+Validation loss estimates generalization performance.
+Small educational models are useful for understanding internals.
+GPU kernels are launched with explicit threadgroup sizes.
+Host code prepares buffers and dispatches compute pipelines.
+Causal masking prevents looking at future tokens.
+Autoregressive generation appends one token at a time.
+Model checkpoints store all trainable variables.
+Exported JSON is readable and easy to inspect.
+Checksums detect corrupted model files.
+Numerical validation compares CPU and GPU outputs.
+Practical workflows emphasize reproducibility and determinism.
+Machine learning systems combine math, software, and hardware.
+Efficient data pipelines keep accelerators busy.
+Tokenization choices strongly affect model behavior.
+Byte level tokenization is simple and robust.
+Learning rate warmup can stabilize early training.
+Cosine decay gradually reduces learning rate over time.
+AdamW tracks gradient moments and applies weight decay.
+Loss curves should trend downward as training progresses.
+Evaluation should be periodic and cheap.
+Training logs should include throughput and loss metrics.
+Memory budgets constrain model size and batch size.
+This tutorial focuses on clarity rather than benchmark speed.
+Metal kernels in this lesson compute attention and logits.
+Rust code handles token loops, sampling, and validation.
+A complete lesson should run end to end locally.
+Understanding each tensor shape reduces debugging time.
+Metal lets us run many arithmetic operations in parallel.
+Rust lets us control memory layout and data movement explicitly.
+A language model predicts the next token based on previous tokens.
+Training adjusts model weights to reduce cross entropy loss.
+Attention computes weighted combinations of value vectors.
+The query vector compares with key vectors to produce scores.
+Softmax turns attention scores into probabilities.
+Residual connections help optimization stay stable.
+Layer normalization keeps activations numerically well behaved.
+The feed forward network expands then projects hidden states.
+During inference we never update weights.
+During training we update weights after backward pass.
+A dataset is split into train and validation portions.
+Validation loss estimates generalization performance.
+Small educational models are useful for understanding internals.
+GPU kernels are launched with explicit threadgroup sizes.
+Host code prepares buffers and dispatches compute pipelines.
+Causal masking prevents looking at future tokens.
+Autoregressive generation appends one token at a time.
+Model checkpoints store all trainable variables.
+Exported JSON is readable and easy to inspect.
+Checksums detect corrupted model files.
+Numerical validation compares CPU and GPU outputs.
+Practical workflows emphasize reproducibility and determinism.
+Machine learning systems combine math, software, and hardware.
+Efficient data pipelines keep accelerators busy.
+Tokenization choices strongly affect model behavior.
+Byte level tokenization is simple and robust.
+Learning rate warmup can stabilize early training.
+Cosine decay gradually reduces learning rate over time.
+AdamW tracks gradient moments and applies weight decay.
+Loss curves should trend downward as training progresses.
+Evaluation should be periodic and cheap.
+Training logs should include throughput and loss metrics.
+Memory budgets constrain model size and batch size.
+This tutorial focuses on clarity rather than benchmark speed.
+Metal kernels in this lesson compute attention and logits.
+Rust code handles token loops, sampling, and validation.
+A complete lesson should run end to end locally.
+Understanding each tensor shape reduces debugging time.
+Metal lets us run many arithmetic operations in parallel.
+Rust lets us control memory layout and data movement explicitly.
+A language model predicts the next token based on previous tokens.
+Training adjusts model weights to reduce cross entropy loss.
+Attention computes weighted combinations of value vectors.
+The query vector compares with key vectors to produce scores.
+Softmax turns attention scores into probabilities.
+Residual connections help optimization stay stable.
+Layer normalization keeps activations numerically well behaved.
+The feed forward network expands then projects hidden states.
+During inference we never update weights.
+During training we update weights after backward pass.
+A dataset is split into train and validation portions.
+Validation loss estimates generalization performance.
+Small educational models are useful for understanding internals.
+GPU kernels are launched with explicit threadgroup sizes.
+Host code prepares buffers and dispatches compute pipelines.
+Causal masking prevents looking at future tokens.
+Autoregressive generation appends one token at a time.
+Model checkpoints store all trainable variables.
+Exported JSON is readable and easy to inspect.
+Checksums detect corrupted model files.
+Numerical validation compares CPU and GPU outputs.
+Practical workflows emphasize reproducibility and determinism.
+Machine learning systems combine math, software, and hardware.
+Efficient data pipelines keep accelerators busy.
+Tokenization choices strongly affect model behavior.
+Byte level tokenization is simple and robust.
+Learning rate warmup can stabilize early training.
+Cosine decay gradually reduces learning rate over time.
+AdamW tracks gradient moments and applies weight decay.
+Loss curves should trend downward as training progresses.
+Evaluation should be periodic and cheap.
+Training logs should include throughput and loss metrics.
+Memory budgets constrain model size and batch size.
+This tutorial focuses on clarity rather than benchmark speed.
+Metal kernels in this lesson compute attention and logits.
+Rust code handles token loops, sampling, and validation.
+A complete lesson should run end to end locally.
+Understanding each tensor shape reduces debugging time.
+Metal lets us run many arithmetic operations in parallel.
+Rust lets us control memory layout and data movement explicitly.
+A language model predicts the next token based on previous tokens.
+Training adjusts model weights to reduce cross entropy loss.
+Attention computes weighted combinations of value vectors.
+The query vector compares with key vectors to produce scores.
+Softmax turns attention scores into probabilities.
+Residual connections help optimization stay stable.
+Layer normalization keeps activations numerically well behaved.
+The feed forward network expands then projects hidden states.
+During inference we never update weights.
+During training we update weights after backward pass.
+A dataset is split into train and validation portions.
+Validation loss estimates generalization performance.
+Small educational models are useful for understanding internals.
+GPU kernels are launched with explicit threadgroup sizes.
+Host code prepares buffers and dispatches compute pipelines.
+Causal masking prevents looking at future tokens.
+Autoregressive generation appends one token at a time.
+Model checkpoints store all trainable variables.
+Exported JSON is readable and easy to inspect.
+Checksums detect corrupted model files.
+Numerical validation compares CPU and GPU outputs.
+Practical workflows emphasize reproducibility and determinism.
+Machine learning systems combine math, software, and hardware.
+Efficient data pipelines keep accelerators busy.
+Tokenization choices strongly affect model behavior.
+Byte level tokenization is simple and robust.
+Learning rate warmup can stabilize early training.
+Cosine decay gradually reduces learning rate over time.
+AdamW tracks gradient moments and applies weight decay.
+Loss curves should trend downward as training progresses.
+Evaluation should be periodic and cheap.
+Training logs should include throughput and loss metrics.
+Memory budgets constrain model size and batch size.
+This tutorial focuses on clarity rather than benchmark speed.
+Metal kernels in this lesson compute attention and logits.
+Rust code handles token loops, sampling, and validation.
+A complete lesson should run end to end locally.
+Understanding each tensor shape reduces debugging time.
+Metal lets us run many arithmetic operations in parallel.
+Rust lets us control memory layout and data movement explicitly.
+A language model predicts the next token based on previous tokens.
+Training adjusts model weights to reduce cross entropy loss.
+Attention computes weighted combinations of value vectors.
+The query vector compares with key vectors to produce scores.
+Softmax turns attention scores into probabilities.
+Residual connections help optimization stay stable.
+Layer normalization keeps activations numerically well behaved.
+The feed forward network expands then projects hidden states.
+During inference we never update weights.
+During training we update weights after backward pass.
+A dataset is split into train and validation portions.
+Validation loss estimates generalization performance.
+Small educational models are useful for understanding internals.
+GPU kernels are launched with explicit threadgroup sizes.
+Host code prepares buffers and dispatches compute pipelines.
+Causal masking prevents looking at future tokens.
+Autoregressive generation appends one token at a time.
+Model checkpoints store all trainable variables.
+Exported JSON is readable and easy to inspect.
+Checksums detect corrupted model files.
+Numerical validation compares CPU and GPU outputs.
+Practical workflows emphasize reproducibility and determinism.
+Machine learning systems combine math, software, and hardware.
+Efficient data pipelines keep accelerators busy.
+Tokenization choices strongly affect model behavior.
+Byte level tokenization is simple and robust.
+Learning rate warmup can stabilize early training.
+Cosine decay gradually reduces learning rate over time.
+AdamW tracks gradient moments and applies weight decay.
+Loss curves should trend downward as training progresses.
+Evaluation should be periodic and cheap.
+Training logs should include throughput and loss metrics.
+Memory budgets constrain model size and batch size.
+This tutorial focuses on clarity rather than benchmark speed.
+Metal kernels in this lesson compute attention and logits.
+Rust code handles token loops, sampling, and validation.
+A complete lesson should run end to end locally.
+Understanding each tensor shape reduces debugging time.
+Metal lets us run many arithmetic operations in parallel.
+Rust lets us control memory layout and data movement explicitly.
+A language model predicts the next token based on previous tokens.
+Training adjusts model weights to reduce cross entropy loss.
+Attention computes weighted combinations of value vectors.
+The query vector compares with key vectors to produce scores.
+Softmax turns attention scores into probabilities.
+Residual connections help optimization stay stable.
+Layer normalization keeps activations numerically well behaved.
+The feed forward network expands then projects hidden states.
+During inference we never update weights.
+During training we update weights after backward pass.
+A dataset is split into train and validation portions.
+Validation loss estimates generalization performance.
+Small educational models are useful for understanding internals.
+GPU kernels are launched with explicit threadgroup sizes.
+Host code prepares buffers and dispatches compute pipelines.
+Causal masking prevents looking at future tokens.
+Autoregressive generation appends one token at a time.
+Model checkpoints store all trainable variables.
+Exported JSON is readable and easy to inspect.
+Checksums detect corrupted model files.
+Numerical validation compares CPU and GPU outputs.
+Practical workflows emphasize reproducibility and determinism.
+Machine learning systems combine math, software, and hardware.
+Efficient data pipelines keep accelerators busy.
+Tokenization choices strongly affect model behavior.
+Byte level tokenization is simple and robust.
+Learning rate warmup can stabilize early training.
+Cosine decay gradually reduces learning rate over time.
+AdamW tracks gradient moments and applies weight decay.
+Loss curves should trend downward as training progresses.
+Evaluation should be periodic and cheap.
+Training logs should include throughput and loss metrics.
+Memory budgets constrain model size and batch size.
+This tutorial focuses on clarity rather than benchmark speed.
+Metal kernels in this lesson compute attention and logits.
+Rust code handles token loops, sampling, and validation.
+A complete lesson should run end to end locally.
+Understanding each tensor shape reduces debugging time.
+Metal lets us run many arithmetic operations in parallel.
+Rust lets us control memory layout and data movement explicitly.
+A language model predicts the next token based on previous tokens.
+Training adjusts model weights to reduce cross entropy loss.
+Attention computes weighted combinations of value vectors.
+The query vector compares with key vectors to produce scores.
+Softmax turns attention scores into probabilities.
+Residual connections help optimization stay stable.
+Layer normalization keeps activations numerically well behaved.
+The feed forward network expands then projects hidden states.
+During inference we never update weights.
+During training we update weights after backward pass.
+A dataset is split into train and validation portions.
+Validation loss estimates generalization performance.
+Small educational models are useful for understanding internals.
+GPU kernels are launched with explicit threadgroup sizes.
+Host code prepares buffers and dispatches compute pipelines.
+Causal masking prevents looking at future tokens.
+Autoregressive generation appends one token at a time.
+Model checkpoints store all trainable variables.
+Exported JSON is readable and easy to inspect.
+Checksums detect corrupted model files.
+Numerical validation compares CPU and GPU outputs.
+Practical workflows emphasize reproducibility and determinism.
+Machine learning systems combine math, software, and hardware.
+Efficient data pipelines keep accelerators busy.
+Tokenization choices strongly affect model behavior.
+Byte level tokenization is simple and robust.
+Learning rate warmup can stabilize early training.
+Cosine decay gradually reduces learning rate over time.
+AdamW tracks gradient moments and applies weight decay.
+Loss curves should trend downward as training progresses.
+Evaluation should be periodic and cheap.
+Training logs should include throughput and loss metrics.
+Memory budgets constrain model size and batch size.
+This tutorial focuses on clarity rather than benchmark speed.
+Metal kernels in this lesson compute attention and logits.
+Rust code handles token loops, sampling, and validation.
+A complete lesson should run end to end locally.
+Understanding each tensor shape reduces debugging time.
+Metal lets us run many arithmetic operations in parallel.
+Rust lets us control memory layout and data movement explicitly.
+A language model predicts the next token based on previous tokens.
+Training adjusts model weights to reduce cross entropy loss.
+Attention computes weighted combinations of value vectors.
+The query vector compares with key vectors to produce scores.
+Softmax turns attention scores into probabilities.
+Residual connections help optimization stay stable.
+Layer normalization keeps activations numerically well behaved.
+The feed forward network expands then projects hidden states.
+During inference we never update weights.
+During training we update weights after backward pass.
+A dataset is split into train and validation portions.
+Validation loss estimates generalization performance.
+Small educational models are useful for understanding internals.
+GPU kernels are launched with explicit threadgroup sizes.
+Host code prepares buffers and dispatches compute pipelines.
+Causal masking prevents looking at future tokens.
+Autoregressive generation appends one token at a time.
+Model checkpoints store all trainable variables.
+Exported JSON is readable and easy to inspect.
+Checksums detect corrupted model files.
+Numerical validation compares CPU and GPU outputs.
+Practical workflows emphasize reproducibility and determinism.
+Machine learning systems combine math, software, and hardware.
+Efficient data pipelines keep accelerators busy.
+Tokenization choices strongly affect model behavior.
+Byte level tokenization is simple and robust.
+Learning rate warmup can stabilize early training.
+Cosine decay gradually reduces learning rate over time.
+AdamW tracks gradient moments and applies weight decay.
+Loss curves should trend downward as training progresses.
+Evaluation should be periodic and cheap.
+Training logs should include throughput and loss metrics.
+Memory budgets constrain model size and batch size.
+This tutorial focuses on clarity rather than benchmark speed.
+Metal kernels in this lesson compute attention and logits.
+Rust code handles token loops, sampling, and validation.
+A complete lesson should run end to end locally.
+Understanding each tensor shape reduces debugging time.
+Metal lets us run many arithmetic operations in parallel.
+Rust lets us control memory layout and data movement explicitly.
+A language model predicts the next token based on previous tokens.
+Training adjusts model weights to reduce cross entropy loss.
+Attention computes weighted combinations of value vectors.
+The query vector compares with key vectors to produce scores.
+Softmax turns attention scores into probabilities.
+Residual connections help optimization stay stable.
+Layer normalization keeps activations numerically well behaved.
+The feed forward network expands then projects hidden states.
+During inference we never update weights.
+During training we update weights after backward pass.
+A dataset is split into train and validation portions.
+Validation loss estimates generalization performance.
+Small educational models are useful for understanding internals.
+GPU kernels are launched with explicit threadgroup sizes.
+Host code prepares buffers and dispatches compute pipelines.
+Causal masking prevents looking at future tokens.
+Autoregressive generation appends one token at a time.
+Model checkpoints store all trainable variables.
+Exported JSON is readable and easy to inspect.
+Checksums detect corrupted model files.
+Numerical validation compares CPU and GPU outputs.
+Practical workflows emphasize reproducibility and determinism.
+Machine learning systems combine math, software, and hardware.
+Efficient data pipelines keep accelerators busy.
+Tokenization choices strongly affect model behavior.
+Byte level tokenization is simple and robust.
+Learning rate warmup can stabilize early training.
+Cosine decay gradually reduces learning rate over time.
+AdamW tracks gradient moments and applies weight decay.
+Loss curves should trend downward as training progresses.
+Evaluation should be periodic and cheap.
+Training logs should include throughput and loss metrics.
+Memory budgets constrain model size and batch size.
+This tutorial focuses on clarity rather than benchmark speed.
+Metal kernels in this lesson compute attention and logits.
+Rust code handles token loops, sampling, and validation.
+A complete lesson should run end to end locally.
+Understanding each tensor shape reduces debugging time.
+Metal lets us run many arithmetic operations in parallel.
+Rust lets us control memory layout and data movement explicitly.
+A language model predicts the next token based on previous tokens.
+Training adjusts model weights to reduce cross entropy loss.
+Attention computes weighted combinations of value vectors.
+The query vector compares with key vectors to produce scores.
+Softmax turns attention scores into probabilities.
+Residual connections help optimization stay stable.
+Layer normalization keeps activations numerically well behaved.
+The feed forward network expands then projects hidden states.
+During inference we never update weights.
+During training we update weights after backward pass.
+A dataset is split into train and validation portions.
+Validation loss estimates generalization performance.
+Small educational models are useful for understanding internals.
+GPU kernels are launched with explicit threadgroup sizes.
+Host code prepares buffers and dispatches compute pipelines.
+Causal masking prevents looking at future tokens.
+Autoregressive generation appends one token at a time.
+Model checkpoints store all trainable variables.
+Exported JSON is readable and easy to inspect.
+Checksums detect corrupted model files.
+Numerical validation compares CPU and GPU outputs.
+Practical workflows emphasize reproducibility and determinism.
+Machine learning systems combine math, software, and hardware.
+Efficient data pipelines keep accelerators busy.
+Tokenization choices strongly affect model behavior.
+Byte level tokenization is simple and robust.
+Learning rate warmup can stabilize early training.
+Cosine decay gradually reduces learning rate over time.
+AdamW tracks gradient moments and applies weight decay.
+Loss curves should trend downward as training progresses.
+Evaluation should be periodic and cheap.
+Training logs should include throughput and loss metrics.
+Memory budgets constrain model size and batch size.
+This tutorial focuses on clarity rather than benchmark speed.
+Metal kernels in this lesson compute attention and logits.
+Rust code handles token loops, sampling, and validation.
+A complete lesson should run end to end locally.
+Understanding each tensor shape reduces debugging time.
+Metal lets us run many arithmetic operations in parallel.
+Rust lets us control memory layout and data movement explicitly.
+A language model predicts the next token based on previous tokens.
+Training adjusts model weights to reduce cross entropy loss.
+Attention computes weighted combinations of value vectors.
+The query vector compares with key vectors to produce scores.
+Softmax turns attention scores into probabilities.
+Residual connections help optimization stay stable.
+Layer normalization keeps activations numerically well behaved.
+The feed forward network expands then projects hidden states.
+During inference we never update weights.
+During training we update weights after backward pass.
+A dataset is split into train and validation portions.
+Validation loss estimates generalization performance.
+Small educational models are useful for understanding internals.
+GPU kernels are launched with explicit threadgroup sizes.
+Host code prepares buffers and dispatches compute pipelines.
+Causal masking prevents looking at future tokens.
+Autoregressive generation appends one token at a time.
+Model checkpoints store all trainable variables.
+Exported JSON is readable and easy to inspect.
+Checksums detect corrupted model files.
+Numerical validation compares CPU and GPU outputs.
+Practical workflows emphasize reproducibility and determinism.
+Machine learning systems combine math, software, and hardware.
+Efficient data pipelines keep accelerators busy.
+Tokenization choices strongly affect model behavior.
+Byte level tokenization is simple and robust.
+Learning rate warmup can stabilize early training.
+Cosine decay gradually reduces learning rate over time.
+AdamW tracks gradient moments and applies weight decay.
+Loss curves should trend downward as training progresses.
+Evaluation should be periodic and cheap.
+Training logs should include throughput and loss metrics.
+Memory budgets constrain model size and batch size.
+This tutorial focuses on clarity rather than benchmark speed.
+Metal kernels in this lesson compute attention and logits.
+Rust code handles token loops, sampling, and validation.
+A complete lesson should run end to end locally.
+Understanding each tensor shape reduces debugging time.
+Metal lets us run many arithmetic operations in parallel.
+Rust lets us control memory layout and data movement explicitly.
+A language model predicts the next token based on previous tokens.
+Training adjusts model weights to reduce cross entropy loss.
+Attention computes weighted combinations of value vectors.
+The query vector compares with key vectors to produce scores.
+Softmax turns attention scores into probabilities.
+Residual connections help optimization stay stable.
+Layer normalization keeps activations numerically well behaved.
+The feed forward network expands then projects hidden states.
+During inference we never update weights.
+During training we update weights after backward pass.
+A dataset is split into train and validation portions.
+Validation loss estimates generalization performance.
+Small educational models are useful for understanding internals.
+GPU kernels are launched with explicit threadgroup sizes.
+Host code prepares buffers and dispatches compute pipelines.
+Causal masking prevents looking at future tokens.
+Autoregressive generation appends one token at a time.
+Model checkpoints store all trainable variables.
+Exported JSON is readable and easy to inspect.
+Checksums detect corrupted model files.
+Numerical validation compares CPU and GPU outputs.
+Practical workflows emphasize reproducibility and determinism.
+Machine learning systems combine math, software, and hardware.
+Efficient data pipelines keep accelerators busy.
+Tokenization choices strongly affect model behavior.
+Byte level tokenization is simple and robust.
+Learning rate warmup can stabilize early training.
+Cosine decay gradually reduces learning rate over time.
+AdamW tracks gradient moments and applies weight decay.
+Loss curves should trend downward as training progresses.
+Evaluation should be periodic and cheap.
+Training logs should include throughput and loss metrics.
+Memory budgets constrain model size and batch size.
+This tutorial focuses on clarity rather than benchmark speed.
+Metal kernels in this lesson compute attention and logits.
+Rust code handles token loops, sampling, and validation.
+A complete lesson should run end to end locally.
+Understanding each tensor shape reduces debugging time.
+Metal lets us run many arithmetic operations in parallel.
+Rust lets us control memory layout and data movement explicitly.
+A language model predicts the next token based on previous tokens.
+Training adjusts model weights to reduce cross entropy loss.
+Attention computes weighted combinations of value vectors.
+The query vector compares with key vectors to produce scores.
+Softmax turns attention scores into probabilities.
+Residual connections help optimization stay stable.
+Layer normalization keeps activations numerically well behaved.
+The feed forward network expands then projects hidden states.
+During inference we never update weights.
+During training we update weights after backward pass.
+A dataset is split into train and validation portions.
+Validation loss estimates generalization performance.
+Small educational models are useful for understanding internals.
+GPU kernels are launched with explicit threadgroup sizes.
+Host code prepares buffers and dispatches compute pipelines.
+Causal masking prevents looking at future tokens.
+Autoregressive generation appends one token at a time.
+Model checkpoints store all trainable variables.
+Exported JSON is readable and easy to inspect.
+Checksums detect corrupted model files.
+Numerical validation compares CPU and GPU outputs.
+Practical workflows emphasize reproducibility and determinism.
+Machine learning systems combine math, software, and hardware.
+Efficient data pipelines keep accelerators busy.
+Tokenization choices strongly affect model behavior.
+Byte level tokenization is simple and robust.
+Learning rate warmup can stabilize early training.
+Cosine decay gradually reduces learning rate over time.
+AdamW tracks gradient moments and applies weight decay.
+Loss curves should trend downward as training progresses.
+Evaluation should be periodic and cheap.
+Training logs should include throughput and loss metrics.
+Memory budgets constrain model size and batch size.
+This tutorial focuses on clarity rather than benchmark speed.
+Metal kernels in this lesson compute attention and logits.
+Rust code handles token loops, sampling, and validation.
+A complete lesson should run end to end locally.
+Understanding each tensor shape reduces debugging time.
+Metal lets us run many arithmetic operations in parallel.
+Rust lets us control memory layout and data movement explicitly.
+A language model predicts the next token based on previous tokens.
+Training adjusts model weights to reduce cross entropy loss.
+Attention computes weighted combinations of value vectors.
+The query vector compares with key vectors to produce scores.
+Softmax turns attention scores into probabilities.
+Residual connections help optimization stay stable.
+Layer normalization keeps activations numerically well behaved.
+The feed forward network expands then projects hidden states.
+During inference we never update weights.
+During training we update weights after backward pass.
+A dataset is split into train and validation portions.
+Validation loss estimates generalization performance.
+Small educational models are useful for understanding internals.
+GPU kernels are launched with explicit threadgroup sizes.
+Host code prepares buffers and dispatches compute pipelines.
+Causal masking prevents looking at future tokens.
+Autoregressive generation appends one token at a time.
+Model checkpoints store all trainable variables.
+Exported JSON is readable and easy to inspect.
+Checksums detect corrupted model files.
+Numerical validation compares CPU and GPU outputs.
+Practical workflows emphasize reproducibility and determinism.
+Machine learning systems combine math, software, and hardware.
+Efficient data pipelines keep accelerators busy.
+Tokenization choices strongly affect model behavior.
+Byte level tokenization is simple and robust.
+Learning rate warmup can stabilize early training.
+Cosine decay gradually reduces learning rate over time.
+AdamW tracks gradient moments and applies weight decay.
+Loss curves should trend downward as training progresses.
+Evaluation should be periodic and cheap.
+Training logs should include throughput and loss metrics.
+Memory budgets constrain model size and batch size.
+This tutorial focuses on clarity rather than benchmark speed.
+Metal kernels in this lesson compute attention and logits.
+Rust code handles token loops, sampling, and validation.
+A complete lesson should run end to end locally.
+Understanding each tensor shape reduces debugging time.
+Metal lets us run many arithmetic operations in parallel.
+Rust lets us control memory layout and data movement explicitly.
+A language model predicts the next token based on previous tokens.
+Training adjusts model weights to reduce cross entropy loss.
+Attention computes weighted combinations of value vectors.
+The query vector compares with key vectors to produce scores.
+Softmax turns attention scores into probabilities.
+Residual connections help optimization stay stable.
+Layer normalization keeps activations numerically well behaved.
+The feed forward network expands then projects hidden states.
+During inference we never update weights.
+During training we update weights after backward pass.
+A dataset is split into train and validation portions.
+Validation loss estimates generalization performance.
+Small educational models are useful for understanding internals.
+GPU kernels are launched with explicit threadgroup sizes.
+Host code prepares buffers and dispatches compute pipelines.
+Causal masking prevents looking at future tokens.
+Autoregressive generation appends one token at a time.
+Model checkpoints store all trainable variables.
+Exported JSON is readable and easy to inspect.
+Checksums detect corrupted model files.
+Numerical validation compares CPU and GPU outputs.
+Practical workflows emphasize reproducibility and determinism.
+Machine learning systems combine math, software, and hardware.
+Efficient data pipelines keep accelerators busy.
+Tokenization choices strongly affect model behavior.
+Byte level tokenization is simple and robust.
+Learning rate warmup can stabilize early training.
+Cosine decay gradually reduces learning rate over time.
+AdamW tracks gradient moments and applies weight decay.
+Loss curves should trend downward as training progresses.
+Evaluation should be periodic and cheap.
+Training logs should include throughput and loss metrics.
+Memory budgets constrain model size and batch size.
+This tutorial focuses on clarity rather than benchmark speed.
+Metal kernels in this lesson compute attention and logits.
+Rust code handles token loops, sampling, and validation.
+A complete lesson should run end to end locally.
+Understanding each tensor shape reduces debugging time.
+Metal lets us run many arithmetic operations in parallel.
+Rust lets us control memory layout and data movement explicitly.
+A language model predicts the next token based on previous tokens.
+Training adjusts model weights to reduce cross entropy loss.
+Attention computes weighted combinations of value vectors.
+The query vector compares with key vectors to produce scores.
+Softmax turns attention scores into probabilities.
+Residual connections help optimization stay stable.
+Layer normalization keeps activations numerically well behaved.
+The feed forward network expands then projects hidden states.
+During inference we never update weights.
+During training we update weights after backward pass.
+A dataset is split into train and validation portions.
+Validation loss estimates generalization performance.
+Small educational models are useful for understanding internals.
+GPU kernels are launched with explicit threadgroup sizes.
+Host code prepares buffers and dispatches compute pipelines.
+Causal masking prevents looking at future tokens.
+Autoregressive generation appends one token at a time.
+Model checkpoints store all trainable variables.
+Exported JSON is readable and easy to inspect.
+Checksums detect corrupted model files.
+Numerical validation compares CPU and GPU outputs.
+Practical workflows emphasize reproducibility and determinism.
+Machine learning systems combine math, software, and hardware.
+Efficient data pipelines keep accelerators busy.
+Tokenization choices strongly affect model behavior.
+Byte level tokenization is simple and robust.
+Learning rate warmup can stabilize early training.
+Cosine decay gradually reduces learning rate over time.
+AdamW tracks gradient moments and applies weight decay.
+Loss curves should trend downward as training progresses.
+Evaluation should be periodic and cheap.
+Training logs should include throughput and loss metrics.
+Memory budgets constrain model size and batch size.
+This tutorial focuses on clarity rather than benchmark speed.
+Metal kernels in this lesson compute attention and logits.
+Rust code handles token loops, sampling, and validation.
+A complete lesson should run end to end locally.
+Understanding each tensor shape reduces debugging time.
+Metal lets us run many arithmetic operations in parallel.
+Rust lets us control memory layout and data movement explicitly.
+A language model predicts the next token based on previous tokens.
+Training adjusts model weights to reduce cross entropy loss.
+Attention computes weighted combinations of value vectors.
+The query vector compares with key vectors to produce scores.
+Softmax turns attention scores into probabilities.
+Residual connections help optimization stay stable.
+Layer normalization keeps activations numerically well behaved.
+The feed forward network expands then projects hidden states.
+During inference we never update weights.
+During training we update weights after backward pass.
+A dataset is split into train and validation portions.
+Validation loss estimates generalization performance.
+Small educational models are useful for understanding internals.
+GPU kernels are launched with explicit threadgroup sizes.
+Host code prepares buffers and dispatches compute pipelines.
+Causal masking prevents looking at future tokens.
+Autoregressive generation appends one token at a time.
+Model checkpoints store all trainable variables.
+Exported JSON is readable and easy to inspect.
+Checksums detect corrupted model files.
+Numerical validation compares CPU and GPU outputs.
+Practical workflows emphasize reproducibility and determinism.
+Machine learning systems combine math, software, and hardware.
+Efficient data pipelines keep accelerators busy.
+Tokenization choices strongly affect model behavior.
+Byte level tokenization is simple and robust.
+Learning rate warmup can stabilize early training.
+Cosine decay gradually reduces learning rate over time.
+AdamW tracks gradient moments and applies weight decay.
+Loss curves should trend downward as training progresses.
+Evaluation should be periodic and cheap.
+Training logs should include throughput and loss metrics.
+Memory budgets constrain model size and batch size.
+This tutorial focuses on clarity rather than benchmark speed.
+Metal kernels in this lesson compute attention and logits.
+Rust code handles token loops, sampling, and validation.
+A complete lesson should run end to end locally.
+Understanding each tensor shape reduces debugging time.
+Metal lets us run many arithmetic operations in parallel.
+Rust lets us control memory layout and data movement explicitly.
+A language model predicts the next token based on previous tokens.
+Training adjusts model weights to reduce cross entropy loss.
+Attention computes weighted combinations of value vectors.
+The query vector compares with key vectors to produce scores.
+Softmax turns attention scores into probabilities.
+Residual connections help optimization stay stable.
+Layer normalization keeps activations numerically well behaved.
+The feed forward network expands then projects hidden states.
+During inference we never update weights.
+During training we update weights after backward pass.
+A dataset is split into train and validation portions.
+Validation loss estimates generalization performance.
+Small educational models are useful for understanding internals.
+GPU kernels are launched with explicit threadgroup sizes.
+Host code prepares buffers and dispatches compute pipelines.
+Causal masking prevents looking at future tokens.
+Autoregressive generation appends one token at a time.
+Model checkpoints store all trainable variables.
+Exported JSON is readable and easy to inspect.
+Checksums detect corrupted model files.
+Numerical validation compares CPU and GPU outputs.
+Practical workflows emphasize reproducibility and determinism.
+Machine learning systems combine math, software, and hardware.
+Efficient data pipelines keep accelerators busy.
+Tokenization choices strongly affect model behavior.
+Byte level tokenization is simple and robust.
+Learning rate warmup can stabilize early training.
+Cosine decay gradually reduces learning rate over time.
+AdamW tracks gradient moments and applies weight decay.
+Loss curves should trend downward as training progresses.
+Evaluation should be periodic and cheap.
+Training logs should include throughput and loss metrics.
+Memory budgets constrain model size and batch size.
+This tutorial focuses on clarity rather than benchmark speed.
+Metal kernels in this lesson compute attention and logits.
+Rust code handles token loops, sampling, and validation.
+A complete lesson should run end to end locally.
+Understanding each tensor shape reduces debugging time.
+Metal lets us run many arithmetic operations in parallel.
+Rust lets us control memory layout and data movement explicitly.
+A language model predicts the next token based on previous tokens.
+Training adjusts model weights to reduce cross entropy loss.
+Attention computes weighted combinations of value vectors.
+The query vector compares with key vectors to produce scores.
+Softmax turns attention scores into probabilities.
+Residual connections help optimization stay stable.
+Layer normalization keeps activations numerically well behaved.
+The feed forward network expands then projects hidden states.
+During inference we never update weights.
+During training we update weights after backward pass.
+A dataset is split into train and validation portions.
+Validation loss estimates generalization performance.
+Small educational models are useful for understanding internals.
+GPU kernels are launched with explicit threadgroup sizes.
+Host code prepares buffers and dispatches compute pipelines.
+Causal masking prevents looking at future tokens.
+Autoregressive generation appends one token at a time.
+Model checkpoints store all trainable variables.
+Exported JSON is readable and easy to inspect.
+Checksums detect corrupted model files.
+Numerical validation compares CPU and GPU outputs.
+Practical workflows emphasize reproducibility and determinism.
+Machine learning systems combine math, software, and hardware.
+Efficient data pipelines keep accelerators busy.
+Tokenization choices strongly affect model behavior.
+Byte level tokenization is simple and robust.
+Learning rate warmup can stabilize early training.
+Cosine decay gradually reduces learning rate over time.
+AdamW tracks gradient moments and applies weight decay.
+Loss curves should trend downward as training progresses.
+Evaluation should be periodic and cheap.
+Training logs should include throughput and loss metrics.
+Memory budgets constrain model size and batch size.
+This tutorial focuses on clarity rather than benchmark speed.
+Metal kernels in this lesson compute attention and logits.
+Rust code handles token loops, sampling, and validation.
+A complete lesson should run end to end locally.
+Understanding each tensor shape reduces debugging time.
+Metal lets us run many arithmetic operations in parallel.
+Rust lets us control memory layout and data movement explicitly.
+A language model predicts the next token based on previous tokens.
+Training adjusts model weights to reduce cross entropy loss.
+Attention computes weighted combinations of value vectors.
+The query vector compares with key vectors to produce scores.
+Softmax turns attention scores into probabilities.
+Residual connections help optimization stay stable.
+Layer normalization keeps activations numerically well behaved.
+The feed forward network expands then projects hidden states.
+During inference we never update weights.
+During training we update weights after backward pass.
+A dataset is split into train and validation portions.
+Validation loss estimates generalization performance.
+Small educational models are useful for understanding internals.
+GPU kernels are launched with explicit threadgroup sizes.
+Host code prepares buffers and dispatches compute pipelines.
+Causal masking prevents looking at future tokens.
+Autoregressive generation appends one token at a time.
+Model checkpoints store all trainable variables.
+Exported JSON is readable and easy to inspect.
+Checksums detect corrupted model files.
+Numerical validation compares CPU and GPU outputs.
+Practical workflows emphasize reproducibility and determinism.
+Machine learning systems combine math, software, and hardware.
+Efficient data pipelines keep accelerators busy.
+Tokenization choices strongly affect model behavior.
+Byte level tokenization is simple and robust.
+Learning rate warmup can stabilize early training.
+Cosine decay gradually reduces learning rate over time.
+AdamW tracks gradient moments and applies weight decay.
+Loss curves should trend downward as training progresses.
+Evaluation should be periodic and cheap.
+Training logs should include throughput and loss metrics.
+Memory budgets constrain model size and batch size.
+This tutorial focuses on clarity rather than benchmark speed.
+Metal kernels in this lesson compute attention and logits.
+Rust code handles token loops, sampling, and validation.
+A complete lesson should run end to end locally.
+Understanding each tensor shape reduces debugging time.
+Metal lets us run many arithmetic operations in parallel.
+Rust lets us control memory layout and data movement explicitly.
+A language model predicts the next token based on previous tokens.
+Training adjusts model weights to reduce cross entropy loss.
+Attention computes weighted combinations of value vectors.
+The query vector compares with key vectors to produce scores.
+Softmax turns attention scores into probabilities.
+Residual connections help optimization stay stable.
+Layer normalization keeps activations numerically well behaved.
+The feed forward network expands then projects hidden states.
+During inference we never update weights.
+During training we update weights after backward pass.
+A dataset is split into train and validation portions.
+Validation loss estimates generalization performance.
+Small educational models are useful for understanding internals.
+GPU kernels are launched with explicit threadgroup sizes.
+Host code prepares buffers and dispatches compute pipelines.
+Causal masking prevents looking at future tokens.
+Autoregressive generation appends one token at a time.
+Model checkpoints store all trainable variables.
+Exported JSON is readable and easy to inspect.
+Checksums detect corrupted model files.
+Numerical validation compares CPU and GPU outputs.
+Practical workflows emphasize reproducibility and determinism.
+Machine learning systems combine math, software, and hardware.
+Efficient data pipelines keep accelerators busy.
+Tokenization choices strongly affect model behavior.
+Byte level tokenization is simple and robust.
+Learning rate warmup can stabilize early training.
+Cosine decay gradually reduces learning rate over time.
+AdamW tracks gradient moments and applies weight decay.
+Loss curves should trend downward as training progresses.
+Evaluation should be periodic and cheap.
+Training logs should include throughput and loss metrics.
+Memory budgets constrain model size and batch size.
+This tutorial focuses on clarity rather than benchmark speed.
+Metal kernels in this lesson compute attention and logits.
+Rust code handles token loops, sampling, and validation.
+A complete lesson should run end to end locally.
+Understanding each tensor shape reduces debugging time.
+Metal lets us run many arithmetic operations in parallel.
+Rust lets us control memory layout and data movement explicitly.
+A language model predicts the next token based on previous tokens.
+Training adjusts model weights to reduce cross entropy loss.
+Attention computes weighted combinations of value vectors.
+The query vector compares with key vectors to produce scores.
+Softmax turns attention scores into probabilities.
+Residual connections help optimization stay stable.
+Layer normalization keeps activations numerically well behaved.
+The feed forward network expands then projects hidden states.
+During inference we never update weights.
+During training we update weights after backward pass.
+A dataset is split into train and validation portions.
+Validation loss estimates generalization performance.
+Small educational models are useful for understanding internals.
+GPU kernels are launched with explicit threadgroup sizes.
+Host code prepares buffers and dispatches compute pipelines.
+Causal masking prevents looking at future tokens.
+Autoregressive generation appends one token at a time.
+Model checkpoints store all trainable variables.
+Exported JSON is readable and easy to inspect.
+Checksums detect corrupted model files.
+Numerical validation compares CPU and GPU outputs.
+Practical workflows emphasize reproducibility and determinism.
+Machine learning systems combine math, software, and hardware.
+Efficient data pipelines keep accelerators busy.
+Tokenization choices strongly affect model behavior.
+Byte level tokenization is simple and robust.
+Learning rate warmup can stabilize early training.
+Cosine decay gradually reduces learning rate over time.
+AdamW tracks gradient moments and applies weight decay.
+Loss curves should trend downward as training progresses.
+Evaluation should be periodic and cheap.
+Training logs should include throughput and loss metrics.
+Memory budgets constrain model size and batch size.
+This tutorial focuses on clarity rather than benchmark speed.
+Metal kernels in this lesson compute attention and logits.
+Rust code handles token loops, sampling, and validation.
+A complete lesson should run end to end locally.
+Understanding each tensor shape reduces debugging time.
+Metal lets us run many arithmetic operations in parallel.
+Rust lets us control memory layout and data movement explicitly.
+A language model predicts the next token based on previous tokens.
+Training adjusts model weights to reduce cross entropy loss.
+Attention computes weighted combinations of value vectors.
+The query vector compares with key vectors to produce scores.
+Softmax turns attention scores into probabilities.
+Residual connections help optimization stay stable.
+Layer normalization keeps activations numerically well behaved.
+The feed forward network expands then projects hidden states.
+During inference we never update weights.
+During training we update weights after backward pass.
+A dataset is split into train and validation portions.
+Validation loss estimates generalization performance.
+Small educational models are useful for understanding internals.
+GPU kernels are launched with explicit threadgroup sizes.
+Host code prepares buffers and dispatches compute pipelines.
+Causal masking prevents looking at future tokens.
+Autoregressive generation appends one token at a time.
+Model checkpoints store all trainable variables.
+Exported JSON is readable and easy to inspect.
+Checksums detect corrupted model files.
+Numerical validation compares CPU and GPU outputs.
+Practical workflows emphasize reproducibility and determinism.
+Machine learning systems combine math, software, and hardware.
+Efficient data pipelines keep accelerators busy.
+Tokenization choices strongly affect model behavior.
+Byte level tokenization is simple and robust.
+Learning rate warmup can stabilize early training.
+Cosine decay gradually reduces learning rate over time.
+AdamW tracks gradient moments and applies weight decay.
+Loss curves should trend downward as training progresses.
+Evaluation should be periodic and cheap.
+Training logs should include throughput and loss metrics.
+Memory budgets constrain model size and batch size.
+This tutorial focuses on clarity rather than benchmark speed.
+Metal kernels in this lesson compute attention and logits.
+Rust code handles token loops, sampling, and validation.
+A complete lesson should run end to end locally.
+Understanding each tensor shape reduces debugging time.
+Metal lets us run many arithmetic operations in parallel.
+Rust lets us control memory layout and data movement explicitly.
+A language model predicts the next token based on previous tokens.
+Training adjusts model weights to reduce cross entropy loss.
+Attention computes weighted combinations of value vectors.
+The query vector compares with key vectors to produce scores.
+Softmax turns attention scores into probabilities.
+Residual connections help optimization stay stable.
+Layer normalization keeps activations numerically well behaved.
+The feed forward network expands then projects hidden states.
+During inference we never update weights.
+During training we update weights after backward pass.
+A dataset is split into train and validation portions.
+Validation loss estimates generalization performance.
+Small educational models are useful for understanding internals.
+GPU kernels are launched with explicit threadgroup sizes.
+Host code prepares buffers and dispatches compute pipelines.
+Causal masking prevents looking at future tokens.
+Autoregressive generation appends one token at a time.
+Model checkpoints store all trainable variables.
+Exported JSON is readable and easy to inspect.
+Checksums detect corrupted model files.
+Numerical validation compares CPU and GPU outputs.
+Practical workflows emphasize reproducibility and determinism.
+Machine learning systems combine math, software, and hardware.
+Efficient data pipelines keep accelerators busy.
+Tokenization choices strongly affect model behavior.
+Byte level tokenization is simple and robust.
+Learning rate warmup can stabilize early training.
+Cosine decay gradually reduces learning rate over time.
+AdamW tracks gradient moments and applies weight decay.
+Loss curves should trend downward as training progresses.
+Evaluation should be periodic and cheap.
+Training logs should include throughput and loss metrics.
+Memory budgets constrain model size and batch size.
+This tutorial focuses on clarity rather than benchmark speed.
+Metal kernels in this lesson compute attention and logits.
+Rust code handles token loops, sampling, and validation.
+A complete lesson should run end to end locally.
+Understanding each tensor shape reduces debugging time.
+Metal lets us run many arithmetic operations in parallel.
+Rust lets us control memory layout and data movement explicitly.
+A language model predicts the next token based on previous tokens.
+Training adjusts model weights to reduce cross entropy loss.
+Attention computes weighted combinations of value vectors.
+The query vector compares with key vectors to produce scores.
+Softmax turns attention scores into probabilities.
+Residual connections help optimization stay stable.
+Layer normalization keeps activations numerically well behaved.
+The feed forward network expands then projects hidden states.
+During inference we never update weights.
+During training we update weights after backward pass.
+A dataset is split into train and validation portions.
+Validation loss estimates generalization performance.
+Small educational models are useful for understanding internals.
+GPU kernels are launched with explicit threadgroup sizes.
+Host code prepares buffers and dispatches compute pipelines.
+Causal masking prevents looking at future tokens.
+Autoregressive generation appends one token at a time.
+Model checkpoints store all trainable variables.
+Exported JSON is readable and easy to inspect.
+Checksums detect corrupted model files.
+Numerical validation compares CPU and GPU outputs.
+Practical workflows emphasize reproducibility and determinism.
+Machine learning systems combine math, software, and hardware.
+Efficient data pipelines keep accelerators busy.
+Tokenization choices strongly affect model behavior.
+Byte level tokenization is simple and robust.
+Learning rate warmup can stabilize early training.
+Cosine decay gradually reduces learning rate over time.
+AdamW tracks gradient moments and applies weight decay.
+Loss curves should trend downward as training progresses.
+Evaluation should be periodic and cheap.
+Training logs should include throughput and loss metrics.
+Memory budgets constrain model size and batch size.
+This tutorial focuses on clarity rather than benchmark speed.
+Metal kernels in this lesson compute attention and logits.
+Rust code handles token loops, sampling, and validation.
+A complete lesson should run end to end locally.
+Understanding each tensor shape reduces debugging time.
+Metal lets us run many arithmetic operations in parallel.
+Rust lets us control memory layout and data movement explicitly.
+A language model predicts the next token based on previous tokens.
+Training adjusts model weights to reduce cross entropy loss.
+Attention computes weighted combinations of value vectors.
+The query vector compares with key vectors to produce scores.
+Softmax turns attention scores into probabilities.
+Residual connections help optimization stay stable.
+Layer normalization keeps activations numerically well behaved.
+The feed forward network expands then projects hidden states.
+During inference we never update weights.
+During training we update weights after backward pass.
+A dataset is split into train and validation portions.
+Validation loss estimates generalization performance.
+Small educational models are useful for understanding internals.
+GPU kernels are launched with explicit threadgroup sizes.
+Host code prepares buffers and dispatches compute pipelines.
+Causal masking prevents looking at future tokens.
+Autoregressive generation appends one token at a time.
+Model checkpoints store all trainable variables.
+Exported JSON is readable and easy to inspect.
+Checksums detect corrupted model files.
+Numerical validation compares CPU and GPU outputs.
+Practical workflows emphasize reproducibility and determinism.
+Machine learning systems combine math, software, and hardware.
+Efficient data pipelines keep accelerators busy.
+Tokenization choices strongly affect model behavior.
+Byte level tokenization is simple and robust.
+Learning rate warmup can stabilize early training.
+Cosine decay gradually reduces learning rate over time.
+AdamW tracks gradient moments and applies weight decay.
+Loss curves should trend downward as training progresses.
+Evaluation should be periodic and cheap.
+Training logs should include throughput and loss metrics.
+Memory budgets constrain model size and batch size.
+This tutorial focuses on clarity rather than benchmark speed.
+Metal kernels in this lesson compute attention and logits.
+Rust code handles token loops, sampling, and validation.
+A complete lesson should run end to end locally.
+Understanding each tensor shape reduces debugging time.
+Metal lets us run many arithmetic operations in parallel.
+Rust lets us control memory layout and data movement explicitly.
+A language model predicts the next token based on previous tokens.
+Training adjusts model weights to reduce cross entropy loss.
+Attention computes weighted combinations of value vectors.
+The query vector compares with key vectors to produce scores.
+Softmax turns attention scores into probabilities.
+Residual connections help optimization stay stable.
+Layer normalization keeps activations numerically well behaved.
+The feed forward network expands then projects hidden states.
+During inference we never update weights.
+During training we update weights after backward pass.
+A dataset is split into train and validation portions.
+Validation loss estimates generalization performance.
+Small educational models are useful for understanding internals.
+GPU kernels are launched with explicit threadgroup sizes.
+Host code prepares buffers and dispatches compute pipelines.
+Causal masking prevents looking at future tokens.
+Autoregressive generation appends one token at a time.
+Model checkpoints store all trainable variables.
+Exported JSON is readable and easy to inspect.
+Checksums detect corrupted model files.
+Numerical validation compares CPU and GPU outputs.
+Practical workflows emphasize reproducibility and determinism.
+Machine learning systems combine math, software, and hardware.
+Efficient data pipelines keep accelerators busy.
+Tokenization choices strongly affect model behavior.
+Byte level tokenization is simple and robust.
+Learning rate warmup can stabilize early training.
+Cosine decay gradually reduces learning rate over time.
+AdamW tracks gradient moments and applies weight decay.
+Loss curves should trend downward as training progresses.
+Evaluation should be periodic and cheap.
+Training logs should include throughput and loss metrics.
+Memory budgets constrain model size and batch size.
+This tutorial focuses on clarity rather than benchmark speed.
+Metal kernels in this lesson compute attention and logits.
+Rust code handles token loops, sampling, and validation.
+A complete lesson should run end to end locally.
+Understanding each tensor shape reduces debugging time.
+Metal lets us run many arithmetic operations in parallel.
+Rust lets us control memory layout and data movement explicitly.
+A language model predicts the next token based on previous tokens.
+Training adjusts model weights to reduce cross entropy loss.
+Attention computes weighted combinations of value vectors.
+The query vector compares with key vectors to produce scores.
+Softmax turns attention scores into probabilities.
+Residual connections help optimization stay stable.
+Layer normalization keeps activations numerically well behaved.
+The feed forward network expands then projects hidden states.
+During inference we never update weights.
+During training we update weights after backward pass.
+A dataset is split into train and validation portions.
+Validation loss estimates generalization performance.
+Small educational models are useful for understanding internals.
+GPU kernels are launched with explicit threadgroup sizes.
+Host code prepares buffers and dispatches compute pipelines.
+Causal masking prevents looking at future tokens.
+Autoregressive generation appends one token at a time.
+Model checkpoints store all trainable variables.
+Exported JSON is readable and easy to inspect.
+Checksums detect corrupted model files.
+Numerical validation compares CPU and GPU outputs.
+Practical workflows emphasize reproducibility and determinism.
+Machine learning systems combine math, software, and hardware.
+Efficient data pipelines keep accelerators busy.
+Tokenization choices strongly affect model behavior.
+Byte level tokenization is simple and robust.
+Learning rate warmup can stabilize early training.
+Cosine decay gradually reduces learning rate over time.
+AdamW tracks gradient moments and applies weight decay.
+Loss curves should trend downward as training progresses.
+Evaluation should be periodic and cheap.
+Training logs should include throughput and loss metrics.
+Memory budgets constrain model size and batch size.
+This tutorial focuses on clarity rather than benchmark speed.
+Metal kernels in this lesson compute attention and logits.
+Rust code handles token loops, sampling, and validation.
+A complete lesson should run end to end locally.
+Understanding each tensor shape reduces debugging time.
+Metal lets us run many arithmetic operations in parallel.
+Rust lets us control memory layout and data movement explicitly.
+A language model predicts the next token based on previous tokens.
+Training adjusts model weights to reduce cross entropy loss.
+Attention computes weighted combinations of value vectors.
+The query vector compares with key vectors to produce scores.
+Softmax turns attention scores into probabilities.
+Residual connections help optimization stay stable.
+Layer normalization keeps activations numerically well behaved.
+The feed forward network expands then projects hidden states.
+During inference we never update weights.
+During training we update weights after backward pass.
+A dataset is split into train and validation portions.
+Validation loss estimates generalization performance.
+Small educational models are useful for understanding internals.
+GPU kernels are launched with explicit threadgroup sizes.
+Host code prepares buffers and dispatches compute pipelines.
+Causal masking prevents looking at future tokens.
+Autoregressive generation appends one token at a time.
+Model checkpoints store all trainable variables.
+Exported JSON is readable and easy to inspect.
+Checksums detect corrupted model files.
+Numerical validation compares CPU and GPU outputs.
+Practical workflows emphasize reproducibility and determinism.
+Machine learning systems combine math, software, and hardware.
+Efficient data pipelines keep accelerators busy.
+Tokenization choices strongly affect model behavior.
+Byte level tokenization is simple and robust.
+Learning rate warmup can stabilize early training.
+Cosine decay gradually reduces learning rate over time.
+AdamW tracks gradient moments and applies weight decay.
+Loss curves should trend downward as training progresses.
+Evaluation should be periodic and cheap.
+Training logs should include throughput and loss metrics.
+Memory budgets constrain model size and batch size.
+This tutorial focuses on clarity rather than benchmark speed.
+Metal kernels in this lesson compute attention and logits.
+Rust code handles token loops, sampling, and validation.
+A complete lesson should run end to end locally.
+Understanding each tensor shape reduces debugging time.
+Metal lets us run many arithmetic operations in parallel.
+Rust lets us control memory layout and data movement explicitly.
+A language model predicts the next token based on previous tokens.
+Training adjusts model weights to reduce cross entropy loss.
+Attention computes weighted combinations of value vectors.
+The query vector compares with key vectors to produce scores.
+Softmax turns attention scores into probabilities.
+Residual connections help optimization stay stable.
+Layer normalization keeps activations numerically well behaved.
+The feed forward network expands then projects hidden states.
+During inference we never update weights.
+During training we update weights after backward pass.
+A dataset is split into train and validation portions.
+Validation loss estimates generalization performance.
+Small educational models are useful for understanding internals.
+GPU kernels are launched with explicit threadgroup sizes.
+Host code prepares buffers and dispatches compute pipelines.
+Causal masking prevents looking at future tokens.
+Autoregressive generation appends one token at a time.
+Model checkpoints store all trainable variables.
+Exported JSON is readable and easy to inspect.
+Checksums detect corrupted model files.
+Numerical validation compares CPU and GPU outputs.
+Practical workflows emphasize reproducibility and determinism.
+Machine learning systems combine math, software, and hardware.
+Efficient data pipelines keep accelerators busy.
+Tokenization choices strongly affect model behavior.
+Byte level tokenization is simple and robust.
+Learning rate warmup can stabilize early training.
+Cosine decay gradually reduces learning rate over time.
+AdamW tracks gradient moments and applies weight decay.
+Loss curves should trend downward as training progresses.
+Evaluation should be periodic and cheap.
+Training logs should include throughput and loss metrics.
+Memory budgets constrain model size and batch size.
+This tutorial focuses on clarity rather than benchmark speed.
+Metal kernels in this lesson compute attention and logits.
+Rust code handles token loops, sampling, and validation.
+A complete lesson should run end to end locally.
+Understanding each tensor shape reduces debugging time.
+Metal lets us run many arithmetic operations in parallel.
+Rust lets us control memory layout and data movement explicitly.
+A language model predicts the next token based on previous tokens.
+Training adjusts model weights to reduce cross entropy loss.
+Attention computes weighted combinations of value vectors.
+The query vector compares with key vectors to produce scores.
+Softmax turns attention scores into probabilities.
+Residual connections help optimization stay stable.
+Layer normalization keeps activations numerically well behaved.
+The feed forward network expands then projects hidden states.
+During inference we never update weights.
+During training we update weights after backward pass.
+A dataset is split into train and validation portions.
+Validation loss estimates generalization performance.
+Small educational models are useful for understanding internals.
+GPU kernels are launched with explicit threadgroup sizes.
+Host code prepares buffers and dispatches compute pipelines.
+Causal masking prevents looking at future tokens.
+Autoregressive generation appends one token at a time.
+Model checkpoints store all trainable variables.
+Exported JSON is readable and easy to inspect.
+Checksums detect corrupted model files.
+Numerical validation compares CPU and GPU outputs.
+Practical workflows emphasize reproducibility and determinism.
+Machine learning systems combine math, software, and hardware.
+Efficient data pipelines keep accelerators busy.
+Tokenization choices strongly affect model behavior.
+Byte level tokenization is simple and robust.
+Learning rate warmup can stabilize early training.
+Cosine decay gradually reduces learning rate over time.
+AdamW tracks gradient moments and applies weight decay.
+Loss curves should trend downward as training progresses.
+Evaluation should be periodic and cheap.
+Training logs should include throughput and loss metrics.
+Memory budgets constrain model size and batch size.
+This tutorial focuses on clarity rather than benchmark speed.
+Metal kernels in this lesson compute attention and logits.
+Rust code handles token loops, sampling, and validation.
+A complete lesson should run end to end locally.
+Understanding each tensor shape reduces debugging time.
+Metal lets us run many arithmetic operations in parallel.
+Rust lets us control memory layout and data movement explicitly.
+A language model predicts the next token based on previous tokens.
+Training adjusts model weights to reduce cross entropy loss.
+Attention computes weighted combinations of value vectors.
+The query vector compares with key vectors to produce scores.
+Softmax turns attention scores into probabilities.
+Residual connections help optimization stay stable.
+Layer normalization keeps activations numerically well behaved.
+The feed forward network expands then projects hidden states.
+During inference we never update weights.
+During training we update weights after backward pass.
+A dataset is split into train and validation portions.
+Validation loss estimates generalization performance.
+Small educational models are useful for understanding internals.
+GPU kernels are launched with explicit threadgroup sizes.
+Host code prepares buffers and dispatches compute pipelines.
+Causal masking prevents looking at future tokens.
+Autoregressive generation appends one token at a time.
+Model checkpoints store all trainable variables.
+Exported JSON is readable and easy to inspect.
+Checksums detect corrupted model files.
+Numerical validation compares CPU and GPU outputs.
+Practical workflows emphasize reproducibility and determinism.
+Machine learning systems combine math, software, and hardware.
+Efficient data pipelines keep accelerators busy.
+Tokenization choices strongly affect model behavior.
+Byte level tokenization is simple and robust.
+Learning rate warmup can stabilize early training.
+Cosine decay gradually reduces learning rate over time.
+AdamW tracks gradient moments and applies weight decay.
+Loss curves should trend downward as training progresses.
+Evaluation should be periodic and cheap.
+Training logs should include throughput and loss metrics.
+Memory budgets constrain model size and batch size.
+This tutorial focuses on clarity rather than benchmark speed.
+Metal kernels in this lesson compute attention and logits.
+Rust code handles token loops, sampling, and validation.
+A complete lesson should run end to end locally.
+Understanding each tensor shape reduces debugging time.
+Metal lets us run many arithmetic operations in parallel.
+Rust lets us control memory layout and data movement explicitly.
+A language model predicts the next token based on previous tokens.
+Training adjusts model weights to reduce cross entropy loss.
+Attention computes weighted combinations of value vectors.
+The query vector compares with key vectors to produce scores.
+Softmax turns attention scores into probabilities.
+Residual connections help optimization stay stable.
+Layer normalization keeps activations numerically well behaved.
+The feed forward network expands then projects hidden states.
+During inference we never update weights.
+During training we update weights after backward pass.
+A dataset is split into train and validation portions.
+Validation loss estimates generalization performance.
+Small educational models are useful for understanding internals.
+GPU kernels are launched with explicit threadgroup sizes.
+Host code prepares buffers and dispatches compute pipelines.
+Causal masking prevents looking at future tokens.
+Autoregressive generation appends one token at a time.
+Model checkpoints store all trainable variables.
+Exported JSON is readable and easy to inspect.
+Checksums detect corrupted model files.
+Numerical validation compares CPU and GPU outputs.
+Practical workflows emphasize reproducibility and determinism.
+Machine learning systems combine math, software, and hardware.
+Efficient data pipelines keep accelerators busy.
+Tokenization choices strongly affect model behavior.
+Byte level tokenization is simple and robust.
+Learning rate warmup can stabilize early training.
+Cosine decay gradually reduces learning rate over time.
+AdamW tracks gradient moments and applies weight decay.
+Loss curves should trend downward as training progresses.
+Evaluation should be periodic and cheap.
+Training logs should include throughput and loss metrics.
+Memory budgets constrain model size and batch size.
+This tutorial focuses on clarity rather than benchmark speed.
+Metal kernels in this lesson compute attention and logits.
+Rust code handles token loops, sampling, and validation.
+A complete lesson should run end to end locally.
+Understanding each tensor shape reduces debugging time.
+Metal lets us run many arithmetic operations in parallel.
+Rust lets us control memory layout and data movement explicitly.
+A language model predicts the next token based on previous tokens.
+Training adjusts model weights to reduce cross entropy loss.
+Attention computes weighted combinations of value vectors.
+The query vector compares with key vectors to produce scores.
+Softmax turns attention scores into probabilities.
+Residual connections help optimization stay stable.
+Layer normalization keeps activations numerically well behaved.
+The feed forward network expands then projects hidden states.
+During inference we never update weights.
+During training we update weights after backward pass.
+A dataset is split into train and validation portions.
+Validation loss estimates generalization performance.
+Small educational models are useful for understanding internals.
+GPU kernels are launched with explicit threadgroup sizes.
+Host code prepares buffers and dispatches compute pipelines.
+Causal masking prevents looking at future tokens.
+Autoregressive generation appends one token at a time.
+Model checkpoints store all trainable variables.
+Exported JSON is readable and easy to inspect.
+Checksums detect corrupted model files.
+Numerical validation compares CPU and GPU outputs.
+Practical workflows emphasize reproducibility and determinism.
+Machine learning systems combine math, software, and hardware.
+Efficient data pipelines keep accelerators busy.
+Tokenization choices strongly affect model behavior.
+Byte level tokenization is simple and robust.
+Learning rate warmup can stabilize early training.
+Cosine decay gradually reduces learning rate over time.
+AdamW tracks gradient moments and applies weight decay.
+Loss curves should trend downward as training progresses.
+Evaluation should be periodic and cheap.
+Training logs should include throughput and loss metrics.
+Memory budgets constrain model size and batch size.
+This tutorial focuses on clarity rather than benchmark speed.
+Metal kernels in this lesson compute attention and logits.
+Rust code handles token loops, sampling, and validation.
+A complete lesson should run end to end locally.
+Understanding each tensor shape reduces debugging time.
+Metal lets us run many arithmetic operations in parallel.
+Rust lets us control memory layout and data movement explicitly.
+A language model predicts the next token based on previous tokens.
+Training adjusts model weights to reduce cross entropy loss.
+Attention computes weighted combinations of value vectors.
+The query vector compares with key vectors to produce scores.
+Softmax turns attention scores into probabilities.
+Residual connections help optimization stay stable.
+Layer normalization keeps activations numerically well behaved.
+The feed forward network expands then projects hidden states.
+During inference we never update weights.
+During training we update weights after backward pass.
+A dataset is split into train and validation portions.
+Validation loss estimates generalization performance.
+Small educational models are useful for understanding internals.
+GPU kernels are launched with explicit threadgroup sizes.
+Host code prepares buffers and dispatches compute pipelines.
+Causal masking prevents looking at future tokens.
+Autoregressive generation appends one token at a time.
+Model checkpoints store all trainable variables.
+Exported JSON is readable and easy to inspect.
+Checksums detect corrupted model files.
+Numerical validation compares CPU and GPU outputs.
+Practical workflows emphasize reproducibility and determinism.
+Machine learning systems combine math, software, and hardware.
+Efficient data pipelines keep accelerators busy.
+Tokenization choices strongly affect model behavior.
+Byte level tokenization is simple and robust.
+Learning rate warmup can stabilize early training.
+Cosine decay gradually reduces learning rate over time.
+AdamW tracks gradient moments and applies weight decay.
+Loss curves should trend downward as training progresses.
+Evaluation should be periodic and cheap.
+Training logs should include throughput and loss metrics.
+Memory budgets constrain model size and batch size.
+This tutorial focuses on clarity rather than benchmark speed.
+Metal kernels in this lesson compute attention and logits.
+Rust code handles token loops, sampling, and validation.
+A complete lesson should run end to end locally.
+Understanding each tensor shape reduces debugging time.
+Metal lets us run many arithmetic operations in parallel.
+Rust lets us control memory layout and data movement explicitly.
+A language model predicts the next token based on previous tokens.
+Training adjusts model weights to reduce cross entropy loss.
+Attention computes weighted combinations of value vectors.
+The query vector compares with key vectors to produce scores.
+Softmax turns attention scores into probabilities.
+Residual connections help optimization stay stable.
+Layer normalization keeps activations numerically well behaved.
+The feed forward network expands then projects hidden states.
+During inference we never update weights.
+During training we update weights after backward pass.
+A dataset is split into train and validation portions.
+Validation loss estimates generalization performance.
+Small educational models are useful for understanding internals.
+GPU kernels are launched with explicit threadgroup sizes.
+Host code prepares buffers and dispatches compute pipelines.
+Causal masking prevents looking at future tokens.
+Autoregressive generation appends one token at a time.
+Model checkpoints store all trainable variables.
+Exported JSON is readable and easy to inspect.
+Checksums detect corrupted model files.
+Numerical validation compares CPU and GPU outputs.
+Practical workflows emphasize reproducibility and determinism.
+Machine learning systems combine math, software, and hardware.
+Efficient data pipelines keep accelerators busy.
+Tokenization choices strongly affect model behavior.
+Byte level tokenization is simple and robust.
+Learning rate warmup can stabilize early training.
+Cosine decay gradually reduces learning rate over time.
+AdamW tracks gradient moments and applies weight decay.
+Loss curves should trend downward as training progresses.
+Evaluation should be periodic and cheap.
+Training logs should include throughput and loss metrics.
+Memory budgets constrain model size and batch size.
+This tutorial focuses on clarity rather than benchmark speed.
+Metal kernels in this lesson compute attention and logits.
+Rust code handles token loops, sampling, and validation.
+A complete lesson should run end to end locally.
+Understanding each tensor shape reduces debugging time.
+Metal lets us run many arithmetic operations in parallel.
+Rust lets us control memory layout and data movement explicitly.
+A language model predicts the next token based on previous tokens.
+Training adjusts model weights to reduce cross entropy loss.
+Attention computes weighted combinations of value vectors.
+The query vector compares with key vectors to produce scores.
+Softmax turns attention scores into probabilities.
+Residual connections help optimization stay stable.
+Layer normalization keeps activations numerically well behaved.
+The feed forward network expands then projects hidden states.
+During inference we never update weights.
+During training we update weights after backward pass.
+A dataset is split into train and validation portions.
+Validation loss estimates generalization performance.
+Small educational models are useful for understanding internals.
+GPU kernels are launched with explicit threadgroup sizes.
+Host code prepares buffers and dispatches compute pipelines.
+Causal masking prevents looking at future tokens.
+Autoregressive generation appends one token at a time.
+Model checkpoints store all trainable variables.
+Exported JSON is readable and easy to inspect.
+Checksums detect corrupted model files.
+Numerical validation compares CPU and GPU outputs.
+Practical workflows emphasize reproducibility and determinism.
+Machine learning systems combine math, software, and hardware.
+Efficient data pipelines keep accelerators busy.
+Tokenization choices strongly affect model behavior.
+Byte level tokenization is simple and robust.
+Learning rate warmup can stabilize early training.
+Cosine decay gradually reduces learning rate over time.
+AdamW tracks gradient moments and applies weight decay.
+Loss curves should trend downward as training progresses.
+Evaluation should be periodic and cheap.
+Training logs should include throughput and loss metrics.
+Memory budgets constrain model size and batch size.
+This tutorial focuses on clarity rather than benchmark speed.
+Metal kernels in this lesson compute attention and logits.
+Rust code handles token loops, sampling, and validation.
+A complete lesson should run end to end locally.
+Understanding each tensor shape reduces debugging time.
+Metal lets us run many arithmetic operations in parallel.
+Rust lets us control memory layout and data movement explicitly.
+A language model predicts the next token based on previous tokens.
+Training adjusts model weights to reduce cross entropy loss.
+Attention computes weighted combinations of value vectors.
+The query vector compares with key vectors to produce scores.
+Softmax turns attention scores into probabilities.
+Residual connections help optimization stay stable.
+Layer normalization keeps activations numerically well behaved.
+The feed forward network expands then projects hidden states.
+During inference we never update weights.
+During training we update weights after backward pass.
+A dataset is split into train and validation portions.
+Validation loss estimates generalization performance.
+Small educational models are useful for understanding internals.
+GPU kernels are launched with explicit threadgroup sizes.
+Host code prepares buffers and dispatches compute pipelines.
+Causal masking prevents looking at future tokens.
+Autoregressive generation appends one token at a time.
+Model checkpoints store all trainable variables.
+Exported JSON is readable and easy to inspect.
+Checksums detect corrupted model files.
+Numerical validation compares CPU and GPU outputs.
+Practical workflows emphasize reproducibility and determinism.
+Machine learning systems combine math, software, and hardware.
+Efficient data pipelines keep accelerators busy.
+Tokenization choices strongly affect model behavior.
+Byte level tokenization is simple and robust.
+Learning rate warmup can stabilize early training.
+Cosine decay gradually reduces learning rate over time.
+AdamW tracks gradient moments and applies weight decay.
+Loss curves should trend downward as training progresses.
+Evaluation should be periodic and cheap.
+Training logs should include throughput and loss metrics.
+Memory budgets constrain model size and batch size.
+This tutorial focuses on clarity rather than benchmark speed.
+Metal kernels in this lesson compute attention and logits.
+Rust code handles token loops, sampling, and validation.
+A complete lesson should run end to end locally.
+Understanding each tensor shape reduces debugging time.
+Metal lets us run many arithmetic operations in parallel.
+Rust lets us control memory layout and data movement explicitly.
+A language model predicts the next token based on previous tokens.
+Training adjusts model weights to reduce cross entropy loss.
+Attention computes weighted combinations of value vectors.
+The query vector compares with key vectors to produce scores.
+Softmax turns attention scores into probabilities.
+Residual connections help optimization stay stable.
+Layer normalization keeps activations numerically well behaved.
+The feed forward network expands then projects hidden states.
+During inference we never update weights.
+During training we update weights after backward pass.
+A dataset is split into train and validation portions.
+Validation loss estimates generalization performance.
+Small educational models are useful for understanding internals.
+GPU kernels are launched with explicit threadgroup sizes.
+Host code prepares buffers and dispatches compute pipelines.
+Causal masking prevents looking at future tokens.
+Autoregressive generation appends one token at a time.
+Model checkpoints store all trainable variables.
+Exported JSON is readable and easy to inspect.
+Checksums detect corrupted model files.
+Numerical validation compares CPU and GPU outputs.
+Practical workflows emphasize reproducibility and determinism.
+Machine learning systems combine math, software, and hardware.
+Efficient data pipelines keep accelerators busy.
+Tokenization choices strongly affect model behavior.
+Byte level tokenization is simple and robust.
+Learning rate warmup can stabilize early training.
+Cosine decay gradually reduces learning rate over time.
+AdamW tracks gradient moments and applies weight decay.
+Loss curves should trend downward as training progresses.
+Evaluation should be periodic and cheap.
+Training logs should include throughput and loss metrics.
+Memory budgets constrain model size and batch size.
+This tutorial focuses on clarity rather than benchmark speed.
+Metal kernels in this lesson compute attention and logits.
+Rust code handles token loops, sampling, and validation.
+A complete lesson should run end to end locally.
+Understanding each tensor shape reduces debugging time.
+Metal lets us run many arithmetic operations in parallel.
+Rust lets us control memory layout and data movement explicitly.
+A language model predicts the next token based on previous tokens.
+Training adjusts model weights to reduce cross entropy loss.
+Attention computes weighted combinations of value vectors.
+The query vector compares with key vectors to produce scores.
+Softmax turns attention scores into probabilities.
+Residual connections help optimization stay stable.
+Layer normalization keeps activations numerically well behaved.
+The feed forward network expands then projects hidden states.
+During inference we never update weights.
+During training we update weights after backward pass.
+A dataset is split into train and validation portions.
+Validation loss estimates generalization performance.
+Small educational models are useful for understanding internals.
+GPU kernels are launched with explicit threadgroup sizes.
+Host code prepares buffers and dispatches compute pipelines.
+Causal masking prevents looking at future tokens.
+Autoregressive generation appends one token at a time.
+Model checkpoints store all trainable variables.
+Exported JSON is readable and easy to inspect.
+Checksums detect corrupted model files.
+Numerical validation compares CPU and GPU outputs.
+Practical workflows emphasize reproducibility and determinism.
+Machine learning systems combine math, software, and hardware.
+Efficient data pipelines keep accelerators busy.
+Tokenization choices strongly affect model behavior.
+Byte level tokenization is simple and robust.
+Learning rate warmup can stabilize early training.
+Cosine decay gradually reduces learning rate over time.
+AdamW tracks gradient moments and applies weight decay.
+Loss curves should trend downward as training progresses.
+Evaluation should be periodic and cheap.
+Training logs should include throughput and loss metrics.
+Memory budgets constrain model size and batch size.
+This tutorial focuses on clarity rather than benchmark speed.
+Metal kernels in this lesson compute attention and logits.
+Rust code handles token loops, sampling, and validation.
+A complete lesson should run end to end locally.
+Understanding each tensor shape reduces debugging time.

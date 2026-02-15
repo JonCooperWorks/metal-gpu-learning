@@ -1,0 +1,18 @@
+[package]
+name = "medicaid-provider-spending"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0"
+metal = "0.33.0"
+objc = "0.2.4"
+libc = "0.2"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+parquet = { version = "53", features = ["arrow"] }
+arrow-array = "53"
+arrow-schema = "53"
+
+[dev-dependencies]
+tempfile = "3"

@@ -8,5 +8,8 @@ members = [
     "06-market-tick-aggregation",
     "07-credit-card-fraud-detector",
     "08-basic-llm",
+    "09-local-llm-training",
+    "09-local-llm-training/trainer",
+    "10-medicaid-provider-spending",
 ]
 resolver = "2"
