@@ -24,6 +24,7 @@ introducing Metal concepts from device discovery to parallel compute kernels.
 | 7 | `07-credit-card-fraud-detector/` | Fraud rules engine -- score transactions and reduce TP/FP/TN/FN + precision/recall/FPR metrics |
 | 8 | `08-basic-llm/` | Basic LLM inference -- single-head attention + tiny autoregressive generation loop |
 | 9 | `09-local-llm-training/` | Local LLM training -- train a tiny transformer with Candle, export JSON weights, and run Rust/Metal inference |
+| 10 | `10-medicaid-provider-spending/` | Multi-kernel Medicaid analytics -- selectable kernels (1..8), anomaly scoring, CPU/GPU validation, and top-spender reporting |
 
 ## How to Run
 
@@ -47,3 +48,6 @@ Every `src/main.rs` is written as a tutorial. Read top-to-bottom -- the comments
 explain every concept as it's introduced. The Metal Shading Language (MSL) source
 code is embedded as Rust string constants so you can see the GPU and CPU code
 side by side.
+
+For Lesson 10, see the kernel catalog table in:
+`10-medicaid-provider-spending/README.md`
