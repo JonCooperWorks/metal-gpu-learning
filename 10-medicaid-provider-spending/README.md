@@ -49,14 +49,16 @@ Expected SHA-256:
 
 ## Kernel Catalog
 
-1. Top spenders (`score = paid`)
-2. Z-score anomaly on paid
-3. MAD anomaly on paid
-4. MAD anomaly on paid-per-claim
-5. Month-over-month spike ratio
-6. Drift sigma anomaly
-7. HCPCS rarity-weighted anomaly
-8. Distance-based outlier score
+| ID | Kernel | Score formula | Primary use | Fast-path notes |
+|---|---|---|---|---|
+| 1 | Top spenders | `score = paid` | Baseline spending magnitude | If `--compare-cpu off --validate off`, host skips per-row GPU/CPU scoring and directly runs grouped CPU aggregation for top spenders. |
+| 2 | Z-score anomaly | `z = |(paid - mean) / std|` | Detect extreme paid values vs global mean/std | Uses `--k2-threshold`. |
+| 3 | MAD anomaly | `mz = 0.6745 * |(paid - median) / MAD|` | Robust outlier detection when mean/std are skewed | Uses `--k3-threshold`. |
+| 4 | Paid-per-claim MAD anomaly | `mz_ppc = 0.6745 * |(ppc - median_ppc) / MAD_ppc|` | Detect unusually expensive claims | Uses `--k4-threshold`. |
+| 5 | Month-over-month spike | `ratio = paid_current / paid_previous` | Detect sudden temporal jumps | Uses `--k5-ratio-threshold` and `--k5-abs-floor`. |
+| 6 | Drift sigma anomaly | `score = |drift_sigma|` | Detect deviation from rolling group baseline | Uses `--k6-threshold`. |
+| 7 | HCPCS rarity-weighted anomaly | `score = paid * rarity_weight` | Surface high spend in rare procedure patterns | Cutoff from `--k7-percentile`. |
+| 8 | Distance outlier | `score = distance_from_normalized_centroid` | Flag multivariate outliers | Cutoff from `--k8-top-percent`. |
 
 ## Math Primer
 
