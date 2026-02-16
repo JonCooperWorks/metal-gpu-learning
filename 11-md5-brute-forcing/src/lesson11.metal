@@ -215,12 +215,13 @@ inline void md5_one_block(
 
     // 3) Load X[0..15] as little-endian u32 words.
     //
-    // MD5's message schedule is just these 16 words; MD5 does not expand to\n+    // 64 words like SHA-256.
+    // MD5's message schedule is just these 16 words; MD5 does not expand to
+    // 64 words like SHA-256.
     thread uint X[16];
     for (uint i = 0; i < 16; i++) {
         X[i] = load_le_u32(&block[i * 4u]);
     }
-
+    
     // 4) Main loop (64 steps).
     //
     // MD5 has 4 rounds of 16 steps. Each round uses:
