@@ -21,3 +21,4 @@
 09-local-llm-training/artifacts/*.safetensors
 09-local-llm-training/artifacts/data/
 *.parquet
+*.pyc

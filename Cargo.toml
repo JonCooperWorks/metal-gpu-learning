@@ -11,5 +11,6 @@ members = [
     "09-local-llm-training",
     "09-local-llm-training/trainer",
     "10-medicaid-provider-spending",
+    "11-md5-brute-forcing",
 ]
 resolver = "2"

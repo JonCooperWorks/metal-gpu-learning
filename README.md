@@ -25,6 +25,7 @@ introducing Metal concepts from device discovery to parallel compute kernels.
 | 8 | `08-basic-llm/` | Basic LLM inference -- single-head attention + tiny autoregressive generation loop |
 | 9 | `09-local-llm-training/` | Local LLM training -- train a tiny transformer with Candle, export JSON weights, and run Rust/Metal inference |
 | 10 | `10-medicaid-provider-spending/` | Multi-kernel Medicaid analytics -- selectable kernels (1..8), anomaly scoring, CPU/GPU validation, and top-spender reporting |
+| 11 | `11-md5-brute-forcing/` | GPU hash cracking tutorial -- brute-force a single MD5 target with charset-specialized kernels and throughput tuning |
 
 ## How to Run
 

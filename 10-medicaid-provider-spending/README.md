@@ -135,6 +135,53 @@ cargo run --release -p medicaid-provider-spending -- \
   --output-json /Users/jonathan/Development/gpuprogramming/10-medicaid-provider-spending/data/report.json
 ```
 
+## Likely Fraud Pipeline (Kernel Combination + Glue Code)
+
+Use this when you want a single ranked list from multiple anomaly kernels.
+
+- Kernel set used by default: `2,3,4,5,6,7,8`
+- Why this set:
+  - kernel 2/3/4 catch statistical outliers (paid and paid-per-claim)
+  - kernel 5 catches sudden month-over-month spikes
+  - kernel 6 catches temporal drift from baseline
+  - kernel 7/8 catch rarity and multivariate distance anomalies
+
+Run:
+
+```bash
+/Users/jonathan/Development/gpuprogramming/10-medicaid-provider-spending/run_fraud_pipeline.sh
+```
+
+Optional args:
+
+```bash
+/Users/jonathan/Development/gpuprogramming/10-medicaid-provider-spending/run_fraud_pipeline.sh \
+  /Users/jonathan/Development/gpuprogramming/10-medicaid-provider-spending/data/medicaid-provider-spending.parquet \
+  /Users/jonathan/Development/gpuprogramming/10-medicaid-provider-spending/data
+```
+
+Optional env overrides:
+
+```bash
+TOP_K_PER_KERNEL=750 FINAL_TOP_N=150 MIN_VOTES=3 KERNELS=2,3,4,5,6,7,8 \
+  /Users/jonathan/Development/gpuprogramming/10-medicaid-provider-spending/run_fraud_pipeline.sh
+```
+
+Generated outputs:
+
+- Raw per-kernel report JSON:
+  - `/Users/jonathan/Development/gpuprogramming/10-medicaid-provider-spending/data/fraud_raw_report.json`
+- Aggregated likely-fraud JSON:
+  - `/Users/jonathan/Development/gpuprogramming/10-medicaid-provider-spending/data/likely_fraud.json`
+- Aggregated likely-fraud CSV:
+  - `/Users/jonathan/Development/gpuprogramming/10-medicaid-provider-spending/data/likely_fraud.csv`
+
+Aggregation script:
+
+- `/Users/jonathan/Development/gpuprogramming/10-medicaid-provider-spending/scripts/combine_kernel_signals.py`
+- It weights kernel signals, rewards multi-kernel agreement, and assigns tiers
+  (`critical`, `high`, `medium`, `low`) from a 0-100 fraud score.
+
 ## Glossary
 
 - `parquet`: columnar on-disk data format
