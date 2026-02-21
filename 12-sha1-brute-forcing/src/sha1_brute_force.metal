@@ -186,6 +186,10 @@ kernel void sha1_brute_force(
             ulong idx = start + (ulong)k;
             if (idx >= params.search_space) break;
 
+            // Determine the appropriate mapping function based on the alphabet ID.
+            // This is fine because the params are set by the CPU, so this will always select the same branch
+            // per kernel run
+            // Benchmarking showed that this is slightly faster than 1 kernel per charset.
             if (params.alphabet_id == 0u) {
                 map_lower(idx, params.len, msg);
             } else if (params.alphabet_id == 1u) {
