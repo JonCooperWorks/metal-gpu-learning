@@ -335,7 +335,9 @@ fn parse_args() -> Result<CliConfig, String> {
                 std::process::exit(0);
             }
             "--mode" => {
-                let v = args.get(i + 1).ok_or_else(|| "Missing value for --mode".to_string())?;
+                let v = args
+                    .get(i + 1)
+                    .ok_or_else(|| "Missing value for --mode".to_string())?;
                 mode = match v.as_str() {
                     "single" => Mode::Single,
                     "double" => Mode::Double,
@@ -504,7 +506,9 @@ fn resolve_chunk_transactions(cli: CliConfig, device: &Device) -> Config {
 
         let target_total = detected_ram_bytes
             .map(|r| (r as f64 * cli.memory_fraction) as u128)
-            .unwrap_or(DEFAULT_FALLBACK_CHUNK_TRANSACTIONS as u128 * bytes_per_tx_per_slot * slot_count);
+            .unwrap_or(
+                DEFAULT_FALLBACK_CHUNK_TRANSACTIONS as u128 * bytes_per_tx_per_slot * slot_count,
+            );
 
         // Budget is split across slots (single=1, double=2).
         let per_slot_budget = (target_total / slot_count).max(bytes_per_tx_per_slot);
@@ -628,7 +632,11 @@ fn hidden_fraud_label(f: &TransactionFeatures, idx: u64, fraud_rate_boost: f32) 
     let p = (h as f32) / 10_000.0;
 
     // Bernoulli draw from computed risk (capped to avoid degenerate 100% fraud).
-    if p < risk.min(0.95) { 1 } else { 0 }
+    if p < risk.min(0.95) {
+        1
+    } else {
+        0
+    }
 }
 
 // Teaching note:
@@ -789,7 +797,11 @@ fn metrics_from_totals(t: &AggregateTotals) -> DerivedMetrics {
 // Teaching note:
 // Validates CPU and GPU aggregates are effectively the same.
 // Integer counts should match exactly; float-derived values allow tiny tolerance.
-fn assert_totals_close(expected: &AggregateTotals, got: &AggregateTotals, label: &str) -> Result<(), String> {
+fn assert_totals_close(
+    expected: &AggregateTotals,
+    got: &AggregateTotals,
+    label: &str,
+) -> Result<(), String> {
     // Exact checks for integer counts: these should match bit-for-bit.
     let exact = |name: &str, a: u64, b: u64| -> Result<(), String> {
         if a != b {
@@ -812,7 +824,12 @@ fn assert_totals_close(expected: &AggregateTotals, got: &AggregateTotals, label:
     // We allow tiny drift that scales with dataset size.
     let per_bin_tolerance: i64 = ((hist_total / 1_000_000).max(2)) as i64;
     let mut total_hist_drift: i64 = 0;
-    for (i, (a, b)) in expected.histogram.iter().zip(got.histogram.iter()).enumerate() {
+    for (i, (a, b)) in expected
+        .histogram
+        .iter()
+        .zip(got.histogram.iter())
+        .enumerate()
+    {
         let diff = (*a as i64 - *b as i64).abs();
         total_hist_drift += diff;
         if diff > per_bin_tolerance {
@@ -845,8 +862,16 @@ fn assert_totals_close(expected: &AggregateTotals, got: &AggregateTotals, label:
         Ok(())
     };
 
-    check_f("sum_score_legit", expected.sum_score_legit, got.sum_score_legit)?;
-    check_f("sum_score_fraud", expected.sum_score_fraud, got.sum_score_fraud)?;
+    check_f(
+        "sum_score_legit",
+        expected.sum_score_legit,
+        got.sum_score_legit,
+    )?;
+    check_f(
+        "sum_score_fraud",
+        expected.sum_score_fraud,
+        got.sum_score_fraud,
+    )?;
 
     Ok(())
 }
@@ -951,7 +976,11 @@ fn encode_chunk(
 // Teaching note:
 // After GPU finishes a chunk, this folds per-threadgroup partials into
 // one chunk-level aggregate on CPU.
-fn fold_slot_partials(slot: &SlotBuffers, partial_groups: usize, score_bins: u32) -> AggregateTotals {
+fn fold_slot_partials(
+    slot: &SlotBuffers,
+    partial_groups: usize,
+    score_bins: u32,
+) -> AggregateTotals {
     let mut out = empty_totals(score_bins);
 
     let partial_ptr = slot.partial_metrics.contents() as *const PartialMetrics;
@@ -1019,7 +1048,11 @@ fn finalize_in_flight(
         // Optional CPU-vs-GPU chunk check for correctness confidence.
         // Full mode: every chunk. Spot mode: first + periodic checkpoints.
         let expected = aggregate_range(done.base_index, done.len, config);
-        assert_totals_close(&expected, &chunk_gpu, &format!("chunk {}", done.chunk_index + 1))?;
+        assert_totals_close(
+            &expected,
+            &chunk_gpu,
+            &format!("chunk {}", done.chunk_index + 1),
+        )?;
     }
 
     merge_totals(global, &chunk_gpu);
@@ -1041,8 +1074,14 @@ fn finalize_in_flight(
 // Single-buffer schedule:
 // fill chunk, launch chunk, wait chunk, repeat.
 // Easy to understand, less overlap.
-fn run_single(config: &Config, gpu: &GpuPipelines, slots: &[SlotBuffers]) -> Result<(RunStats, AggregateTotals), String> {
-    let total_chunks = config.total_transactions.div_ceil(config.chunk_transactions);
+fn run_single(
+    config: &Config,
+    gpu: &GpuPipelines,
+    slots: &[SlotBuffers],
+) -> Result<(RunStats, AggregateTotals), String> {
+    let total_chunks = config
+        .total_transactions
+        .div_ceil(config.chunk_transactions);
     let progress_step_chunks = ((total_chunks * config.progress_interval) / 100).max(1);
 
     let slot = &slots[0];
@@ -1065,7 +1104,8 @@ fn run_single(config: &Config, gpu: &GpuPipelines, slots: &[SlotBuffers]) -> Res
     // Single mode is easiest to reason about, but cannot overlap CPU/GPU work.
     for chunk_index in 0..total_chunks {
         let base_index = chunk_index * config.chunk_transactions;
-        let len = ((config.total_transactions - base_index).min(config.chunk_transactions)) as usize;
+        let len =
+            ((config.total_transactions - base_index).min(config.chunk_transactions)) as usize;
         let partial_groups = len.div_ceil(THREADGROUP_SIZE as usize).max(1);
 
         // 1) CPU prepares chunk inputs.
@@ -1135,8 +1175,14 @@ fn run_single(config: &Config, gpu: &GpuPipelines, slots: &[SlotBuffers]) -> Res
 // Double-buffer schedule (ping-pong):
 // while GPU works on slot A, CPU fills slot B, then swap.
 // Goal is overlap, reducing idle gaps between chunks.
-fn run_double(config: &Config, gpu: &GpuPipelines, slots: &[SlotBuffers]) -> Result<(RunStats, AggregateTotals), String> {
-    let total_chunks = config.total_transactions.div_ceil(config.chunk_transactions);
+fn run_double(
+    config: &Config,
+    gpu: &GpuPipelines,
+    slots: &[SlotBuffers],
+) -> Result<(RunStats, AggregateTotals), String> {
+    let total_chunks = config
+        .total_transactions
+        .div_ceil(config.chunk_transactions);
     let progress_step_chunks = ((total_chunks * config.progress_interval) / 100).max(1);
 
     let mut amounts = [std::ptr::null_mut::<f32>(); 2];
@@ -1190,7 +1236,8 @@ fn run_double(config: &Config, gpu: &GpuPipelines, slots: &[SlotBuffers]) -> Res
         }
 
         let base_index = chunk_index * config.chunk_transactions;
-        let len = ((config.total_transactions - base_index).min(config.chunk_transactions)) as usize;
+        let len =
+            ((config.total_transactions - base_index).min(config.chunk_transactions)) as usize;
         let partial_groups = len.div_ceil(THREADGROUP_SIZE as usize).max(1);
 
         // While the other slot may still be running on GPU,
@@ -1309,7 +1356,12 @@ fn print_histogram(hist: &[u64]) {
 // Teaching note:
 // Final report printer: timings, quality metrics, histogram, and optional
 // CPU-vs-GPU throughput/sanity comparison.
-fn print_summary(config: &Config, gpu_stats: RunStats, gpu_totals: &AggregateTotals, cpu: Option<(f64, AggregateTotals)>) {
+fn print_summary(
+    config: &Config,
+    gpu_stats: RunStats,
+    gpu_totals: &AggregateTotals,
+    cpu: Option<(f64, AggregateTotals)>,
+) {
     let m = metrics_from_totals(gpu_totals);
 
     println!();
@@ -1437,14 +1489,19 @@ fn main() {
         let config = resolve_chunk_transactions(cli, &device);
 
         // Per-chunk byte sizes for major buffer classes.
-        let chunk_f32_bytes = config.chunk_transactions as u128 * std::mem::size_of::<f32>() as u128;
-        let chunk_u32_bytes = config.chunk_transactions as u128 * std::mem::size_of::<u32>() as u128;
-        let score_bytes = config.chunk_transactions as u128 * std::mem::size_of::<ScoreOutput>() as u128;
+        let chunk_f32_bytes =
+            config.chunk_transactions as u128 * std::mem::size_of::<f32>() as u128;
+        let chunk_u32_bytes =
+            config.chunk_transactions as u128 * std::mem::size_of::<u32>() as u128;
+        let score_bytes =
+            config.chunk_transactions as u128 * std::mem::size_of::<ScoreOutput>() as u128;
 
         // Stage B emits one partial record per threadgroup.
         let partial_groups = config.chunk_transactions.div_ceil(THREADGROUP_SIZE);
-        let partial_metrics_bytes = partial_groups as u128 * std::mem::size_of::<PartialMetrics>() as u128;
-        let partial_hist_bytes = partial_groups as u128 * config.score_bins as u128 * std::mem::size_of::<u32>() as u128;
+        let partial_metrics_bytes =
+            partial_groups as u128 * std::mem::size_of::<PartialMetrics>() as u128;
+        let partial_hist_bytes =
+            partial_groups as u128 * config.score_bins as u128 * std::mem::size_of::<u32>() as u128;
 
         let max_buffer = device.max_buffer_length() as u128;
         // Proactively fail if any single buffer would exceed device limits.
@@ -1567,21 +1624,55 @@ fn main() {
         for _ in 0..slot_count {
             slots.push(SlotBuffers {
                 // Feature columns (f32 each).
-                amounts: device.new_buffer(chunk_f32_bytes as u64, MTLResourceOptions::StorageModeShared),
-                hours: device.new_buffer(chunk_f32_bytes as u64, MTLResourceOptions::StorageModeShared),
-                distance_km: device.new_buffer(chunk_f32_bytes as u64, MTLResourceOptions::StorageModeShared),
-                is_card_present: device.new_buffer(chunk_f32_bytes as u64, MTLResourceOptions::StorageModeShared),
-                mcc_risk: device.new_buffer(chunk_f32_bytes as u64, MTLResourceOptions::StorageModeShared),
-                velocity_1h: device.new_buffer(chunk_f32_bytes as u64, MTLResourceOptions::StorageModeShared),
-                country_mismatch: device.new_buffer(chunk_f32_bytes as u64, MTLResourceOptions::StorageModeShared),
-                device_change: device.new_buffer(chunk_f32_bytes as u64, MTLResourceOptions::StorageModeShared),
+                amounts: device.new_buffer(
+                    chunk_f32_bytes as u64,
+                    MTLResourceOptions::StorageModeShared,
+                ),
+                hours: device.new_buffer(
+                    chunk_f32_bytes as u64,
+                    MTLResourceOptions::StorageModeShared,
+                ),
+                distance_km: device.new_buffer(
+                    chunk_f32_bytes as u64,
+                    MTLResourceOptions::StorageModeShared,
+                ),
+                is_card_present: device.new_buffer(
+                    chunk_f32_bytes as u64,
+                    MTLResourceOptions::StorageModeShared,
+                ),
+                mcc_risk: device.new_buffer(
+                    chunk_f32_bytes as u64,
+                    MTLResourceOptions::StorageModeShared,
+                ),
+                velocity_1h: device.new_buffer(
+                    chunk_f32_bytes as u64,
+                    MTLResourceOptions::StorageModeShared,
+                ),
+                country_mismatch: device.new_buffer(
+                    chunk_f32_bytes as u64,
+                    MTLResourceOptions::StorageModeShared,
+                ),
+                device_change: device.new_buffer(
+                    chunk_f32_bytes as u64,
+                    MTLResourceOptions::StorageModeShared,
+                ),
                 // Ground-truth labels generated on CPU.
-                actual_labels: device.new_buffer(chunk_u32_bytes as u64, MTLResourceOptions::StorageModeShared),
+                actual_labels: device.new_buffer(
+                    chunk_u32_bytes as u64,
+                    MTLResourceOptions::StorageModeShared,
+                ),
                 // Stage A output for every row.
-                score_output: device.new_buffer(score_bytes as u64, MTLResourceOptions::StorageModeShared),
+                score_output: device
+                    .new_buffer(score_bytes as u64, MTLResourceOptions::StorageModeShared),
                 // Stage B partial reductions.
-                partial_metrics: device.new_buffer(partial_metrics_bytes as u64, MTLResourceOptions::StorageModeShared),
-                partial_hist: device.new_buffer(partial_hist_bytes as u64, MTLResourceOptions::StorageModeShared),
+                partial_metrics: device.new_buffer(
+                    partial_metrics_bytes as u64,
+                    MTLResourceOptions::StorageModeShared,
+                ),
+                partial_hist: device.new_buffer(
+                    partial_hist_bytes as u64,
+                    MTLResourceOptions::StorageModeShared,
+                ),
                 // Small constants block read by kernels.
                 params: device.new_buffer(
                     std::mem::size_of::<KernelParams>() as u64,

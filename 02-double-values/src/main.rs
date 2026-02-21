@@ -94,15 +94,27 @@ fn main() {
         println!(" Doubling 100 BILLION numbers on the GPU");
         println!("============================================================");
         println!("GPU:                {}", device.name());
-        println!("Total elements:     {} ({:.0} billion)", TOTAL_ELEMENTS, TOTAL_ELEMENTS as f64 / 1e9);
-        println!("Elements per chunk: {} ({:.0} million)", ELEMENTS_PER_CHUNK, ELEMENTS_PER_CHUNK as f64 / 1e6);
+        println!(
+            "Total elements:     {} ({:.0} billion)",
+            TOTAL_ELEMENTS,
+            TOTAL_ELEMENTS as f64 / 1e9
+        );
+        println!(
+            "Elements per chunk: {} ({:.0} million)",
+            ELEMENTS_PER_CHUNK,
+            ELEMENTS_PER_CHUNK as f64 / 1e6
+        );
         println!("Number of chunks:   {}", NUM_CHUNKS);
-        println!("Memory per chunk:   {:.1} GB (input) + {:.1} GB (output) = {:.1} GB",
+        println!(
+            "Memory per chunk:   {:.1} GB (input) + {:.1} GB (output) = {:.1} GB",
             ELEMENTS_PER_CHUNK as f64 * 4.0 / 1e9,
             ELEMENTS_PER_CHUNK as f64 * 4.0 / 1e9,
             ELEMENTS_PER_CHUNK as f64 * 8.0 / 1e9,
         );
-        println!("Total data:         {:.0} GB\n", TOTAL_ELEMENTS as f64 * 4.0 / 1e9);
+        println!(
+            "Total data:         {:.0} GB\n",
+            TOTAL_ELEMENTS as f64 * 4.0 / 1e9
+        );
 
         // =====================================================================
         // STEP 1: Setup (compile shader, create pipeline) -- done ONCE
@@ -191,7 +203,10 @@ fn main() {
         for i in 0..chunk_size {
             let expected = (i + 1) as f32 * 2.0;
             if (results[i] - expected).abs() > 0.01 {
-                println!("MISMATCH at [{}]: expected {}, got {}", i, expected, results[i]);
+                println!(
+                    "MISMATCH at [{}]: expected {}, got {}",
+                    i, expected, results[i]
+                );
                 all_correct = false;
                 break;
             }
@@ -199,9 +214,22 @@ fn main() {
 
         // Show a sample
         println!("Sample results from first chunk:");
-        for i in [0, 1, 2, 3, 4, chunk_size - 3, chunk_size - 2, chunk_size - 1] {
-            println!("  input[{:>9}] = {:>12.1}  -->  output = {:>12.1}",
-                i, (i + 1) as f32, results[i]);
+        for i in [
+            0,
+            1,
+            2,
+            3,
+            4,
+            chunk_size - 3,
+            chunk_size - 2,
+            chunk_size - 1,
+        ] {
+            println!(
+                "  input[{:>9}] = {:>12.1}  -->  output = {:>12.1}",
+                i,
+                (i + 1) as f32,
+                results[i]
+            );
         }
         println!("\nAll {} elements correct: {}\n", chunk_size, all_correct);
 
@@ -250,7 +278,9 @@ fn main() {
                 for i in 0..chunk_size {
                     let global_idx = base_index + i as u64;
                     // Use modular arithmetic to keep values in f32's precise range
-                    input_ptr.add(i).write((global_idx % 1_000_000) as f32 + 1.0);
+                    input_ptr
+                        .add(i)
+                        .write((global_idx % 1_000_000) as f32 + 1.0);
                 }
             }
             total_fill_time_ms += fill_start.elapsed().as_secs_f64() * 1000.0;
@@ -291,26 +321,36 @@ fn main() {
         // =====================================================================
         let total_time = overall_start.elapsed().as_secs_f64();
         let total_data_gb = TOTAL_ELEMENTS as f64 * 4.0 / 1e9; // input data in GB
-        let total_bandwidth_gb = total_data_gb * 2.0;           // read + write
+        let total_bandwidth_gb = total_data_gb * 2.0; // read + write
 
         println!("\n============================================================");
         println!(" DONE -- 100 billion numbers doubled!");
         println!("============================================================");
         println!("Total wall time:     {:.2}s", total_time);
-        println!("  CPU fill time:     {:.2}s ({:.0}% of total)",
+        println!(
+            "  CPU fill time:     {:.2}s ({:.0}% of total)",
             total_fill_time_ms / 1000.0,
-            total_fill_time_ms / 1000.0 / total_time * 100.0);
-        println!("  GPU compute time:  {:.2}s ({:.0}% of total)",
+            total_fill_time_ms / 1000.0 / total_time * 100.0
+        );
+        println!(
+            "  GPU compute time:  {:.2}s ({:.0}% of total)",
             total_gpu_time_ms / 1000.0,
-            total_gpu_time_ms / 1000.0 / total_time * 100.0);
+            total_gpu_time_ms / 1000.0 / total_time * 100.0
+        );
         println!();
         println!("Throughput:");
-        println!("  {:.2} billion elements/sec (GPU only)",
-            TOTAL_ELEMENTS as f64 / 1e9 / (total_gpu_time_ms / 1000.0));
-        println!("  {:.2} billion elements/sec (wall clock, incl. CPU fill)",
-            TOTAL_ELEMENTS as f64 / 1e9 / total_time);
-        println!("  {:.1} GB/s GPU bandwidth (read + write)",
-            total_bandwidth_gb / (total_gpu_time_ms / 1000.0));
+        println!(
+            "  {:.2} billion elements/sec (GPU only)",
+            TOTAL_ELEMENTS as f64 / 1e9 / (total_gpu_time_ms / 1000.0)
+        );
+        println!(
+            "  {:.2} billion elements/sec (wall clock, incl. CPU fill)",
+            TOTAL_ELEMENTS as f64 / 1e9 / total_time
+        );
+        println!(
+            "  {:.1} GB/s GPU bandwidth (read + write)",
+            total_bandwidth_gb / (total_gpu_time_ms / 1000.0)
+        );
         println!();
 
         // =====================================================================
@@ -324,7 +364,10 @@ fn main() {
         println!("video encoders, and scientific computing tools.");
         println!();
         println!("The breakdown above shows where time was spent:");
-        println!("  - CPU fill: writing {} million f32s into shared memory per chunk", ELEMENTS_PER_CHUNK / 1_000_000);
+        println!(
+            "  - CPU fill: writing {} million f32s into shared memory per chunk",
+            ELEMENTS_PER_CHUNK / 1_000_000
+        );
         println!("  - GPU compute: the actual kernel execution");
         println!();
         println!("In a production app, you'd overlap CPU and GPU work using");

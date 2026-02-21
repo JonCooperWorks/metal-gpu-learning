@@ -449,7 +449,9 @@ fn print_progress(
     start: Instant,
 ) {
     let done_chunks = chunk_index + 1;
-    let done_elements = done_chunks.saturating_mul(chunk_elements).min(total_elements);
+    let done_elements = done_chunks
+        .saturating_mul(chunk_elements)
+        .min(total_elements);
     let pct = if total_elements == 0 {
         100.0
     } else {
@@ -507,7 +509,9 @@ fn run_single(
         let fill_start = Instant::now();
         unsafe {
             for i in 0..active {
-                input_ptr.add(i).write(value_for_index(base_index + i as u64));
+                input_ptr
+                    .add(i)
+                    .write(value_for_index(base_index + i as u64));
             }
         }
         fill_s += fill_start.elapsed().as_secs_f64();
@@ -627,7 +631,9 @@ fn run_double(
         let fill_start = Instant::now();
         unsafe {
             for i in 0..active {
-                input_ptrs[slot].add(i).write(value_for_index(base_index + i as u64));
+                input_ptrs[slot]
+                    .add(i)
+                    .write(value_for_index(base_index + i as u64));
             }
         }
         fill_s += fill_start.elapsed().as_secs_f64();
@@ -828,7 +834,10 @@ fn main() {
             );
         }
         println!("Total chunks:        {}", total_chunks);
-        println!("Chunk buffer size:   {:.3} GB per buffer", chunk_bytes as f64 / 1e9);
+        println!(
+            "Chunk buffer size:   {:.3} GB per buffer",
+            chunk_bytes as f64 / 1e9
+        );
         println!();
 
         // =====================================================================

@@ -374,7 +374,13 @@ fn should_spot_check(chunk_index: u64, total_chunks: u64, progress_step_chunks: 
     chunk_index + 1 == total_chunks || (chunk_index + 1) % progress_step_chunks == 0
 }
 
-fn print_progress(chunk_index: u64, total_chunks: u64, total_ticks: u64, chunk_ticks: u64, start: Instant) {
+fn print_progress(
+    chunk_index: u64,
+    total_chunks: u64,
+    total_ticks: u64,
+    chunk_ticks: u64,
+    start: Instant,
+) {
     let done_chunks = chunk_index + 1;
     let done_ticks = done_chunks.saturating_mul(chunk_ticks).min(total_ticks);
     let pct = if total_ticks == 0 {
@@ -486,8 +492,16 @@ fn totals_to_metrics(t: AggregateTotals) -> FinalMetrics {
         },
         mean_return_proxy: mean_return,
         volatility_proxy: variance.sqrt(),
-        min_price: if t.min_price.is_finite() { t.min_price } else { 0.0 },
-        max_price: if t.max_price.is_finite() { t.max_price } else { 0.0 },
+        min_price: if t.min_price.is_finite() {
+            t.min_price
+        } else {
+            0.0
+        },
+        max_price: if t.max_price.is_finite() {
+            t.max_price
+        } else {
+            0.0
+        },
         tick_count: t.tick_count,
     }
 }
@@ -509,7 +523,11 @@ fn fold_partials(partials: &[PartialAggregate], out: &mut AggregateTotals) {
     }
 }
 
-fn assert_aggregate_close(expected: AggregateTotals, got: AggregateTotals, context: &str) -> Result<(), String> {
+fn assert_aggregate_close(
+    expected: AggregateTotals,
+    got: AggregateTotals,
+    context: &str,
+) -> Result<(), String> {
     let tol_rel: f64 = 5e-4;
     let tol_abs: f64 = 2e-2;
 
@@ -528,7 +546,11 @@ fn assert_aggregate_close(expected: AggregateTotals, got: AggregateTotals, conte
 
     check("sum_size", expected.sum_size, got.sum_size)?;
     check("sum_notional", expected.sum_notional, got.sum_notional)?;
-    check("sum_return_proxy", expected.sum_return_proxy, got.sum_return_proxy)?;
+    check(
+        "sum_return_proxy",
+        expected.sum_return_proxy,
+        got.sum_return_proxy,
+    )?;
     check(
         "sum_return_proxy_sq",
         expected.sum_return_proxy_sq,
@@ -685,7 +707,11 @@ fn finalize_chunk(
     Ok(())
 }
 
-fn run_single(config: Config, gpu: &GpuResources, slots: &[SlotBuffers]) -> Result<(RunStats, AggregateTotals), String> {
+fn run_single(
+    config: Config,
+    gpu: &GpuResources,
+    slots: &[SlotBuffers],
+) -> Result<(RunStats, AggregateTotals), String> {
     let total_chunks = config.total_ticks.div_ceil(config.chunk_ticks);
     let progress_step_chunks = ((total_chunks * config.progress_interval) / 100).max(1);
 
@@ -766,7 +792,11 @@ fn run_single(config: Config, gpu: &GpuResources, slots: &[SlotBuffers]) -> Resu
     ))
 }
 
-fn run_double(config: Config, gpu: &GpuResources, slots: &[SlotBuffers]) -> Result<(RunStats, AggregateTotals), String> {
+fn run_double(
+    config: Config,
+    gpu: &GpuResources,
+    slots: &[SlotBuffers],
+) -> Result<(RunStats, AggregateTotals), String> {
     let total_chunks = config.total_ticks.div_ceil(config.chunk_ticks);
     let progress_step_chunks = ((total_chunks * config.progress_interval) / 100).max(1);
 
@@ -933,7 +963,12 @@ fn print_metrics(label: &str, m: FinalMetrics) {
     println!("  max_price:             {:.6}", m.max_price);
 }
 
-fn print_summary(config: Config, gpu_stats: RunStats, gpu_totals: AggregateTotals, cpu: Option<(f64, AggregateTotals)>) {
+fn print_summary(
+    config: Config,
+    gpu_stats: RunStats,
+    gpu_totals: AggregateTotals,
+    cpu: Option<(f64, AggregateTotals)>,
+) {
     let gpu_metrics = totals_to_metrics(gpu_totals);
 
     println!();
@@ -1014,7 +1049,8 @@ fn main() {
         // 2) Compute required buffer sizes for one slot and enforce device caps.
         let derived_bytes = config.chunk_ticks as u128 * std::mem::size_of::<TickDerived>() as u128;
         let partial_groups = config.chunk_ticks.div_ceil(THREADGROUP_SIZE);
-        let partial_bytes = partial_groups as u128 * std::mem::size_of::<PartialAggregate>() as u128;
+        let partial_bytes =
+            partial_groups as u128 * std::mem::size_of::<PartialAggregate>() as u128;
         let prices_bytes = config.chunk_ticks as u128 * std::mem::size_of::<f32>() as u128;
         let sizes_bytes = prices_bytes;
 
@@ -1134,10 +1170,14 @@ fn main() {
 
         let mut slots = Vec::with_capacity(slot_count);
         for _ in 0..slot_count {
-            let prices = device.new_buffer(prices_bytes as u64, MTLResourceOptions::StorageModeShared);
-            let sizes = device.new_buffer(sizes_bytes as u64, MTLResourceOptions::StorageModeShared);
-            let derived = device.new_buffer(derived_bytes as u64, MTLResourceOptions::StorageModeShared);
-            let partials = device.new_buffer(partial_bytes as u64, MTLResourceOptions::StorageModeShared);
+            let prices =
+                device.new_buffer(prices_bytes as u64, MTLResourceOptions::StorageModeShared);
+            let sizes =
+                device.new_buffer(sizes_bytes as u64, MTLResourceOptions::StorageModeShared);
+            let derived =
+                device.new_buffer(derived_bytes as u64, MTLResourceOptions::StorageModeShared);
+            let partials =
+                device.new_buffer(partial_bytes as u64, MTLResourceOptions::StorageModeShared);
             let params = device.new_buffer(
                 std::mem::size_of::<KernelParams>() as u64,
                 MTLResourceOptions::StorageModeShared,

@@ -86,7 +86,10 @@ fn parse_args() -> Result<Config> {
                 i += 2;
             }
             "--prompt" => {
-                prompt = args.get(i + 1).context("missing --prompt value")?.to_string();
+                prompt = args
+                    .get(i + 1)
+                    .context("missing --prompt value")?
+                    .to_string();
                 i += 2;
             }
             "--generate-tokens" => {
@@ -97,11 +100,18 @@ fn parse_args() -> Result<Config> {
                 i += 2;
             }
             "--max-seq" => {
-                max_seq = args.get(i + 1).context("missing --max-seq value")?.parse()?;
+                max_seq = args
+                    .get(i + 1)
+                    .context("missing --max-seq value")?
+                    .parse()?;
                 i += 2;
             }
             "--validate" => {
-                validate = match args.get(i + 1).context("missing --validate value")?.as_str() {
+                validate = match args
+                    .get(i + 1)
+                    .context("missing --validate value")?
+                    .as_str()
+                {
                     "on" => ValidateMode::On,
                     "off" => ValidateMode::Off,
                     bad => bail!("invalid validate mode: {bad}"),
@@ -238,7 +248,10 @@ fn run() -> Result<()> {
     // -------------------------------------------------------------------------
     // GPU buffers
     // -------------------------------------------------------------------------
-    let q_buf = device.new_buffer((d * mem::size_of::<f32>()) as u64, MTLResourceOptions::StorageModeShared);
+    let q_buf = device.new_buffer(
+        (d * mem::size_of::<f32>()) as u64,
+        MTLResourceOptions::StorageModeShared,
+    );
     let k_buf = device.new_buffer(
         (max_seq * d * mem::size_of::<f32>()) as u64,
         MTLResourceOptions::StorageModeShared,
@@ -247,27 +260,43 @@ fn run() -> Result<()> {
         (max_seq * d * mem::size_of::<f32>()) as u64,
         MTLResourceOptions::StorageModeShared,
     );
-    let attn_w_buf = device.new_buffer((max_seq * mem::size_of::<f32>()) as u64, MTLResourceOptions::StorageModeShared);
-    let context_buf = device.new_buffer((d * mem::size_of::<f32>()) as u64, MTLResourceOptions::StorageModeShared);
+    let attn_w_buf = device.new_buffer(
+        (max_seq * mem::size_of::<f32>()) as u64,
+        MTLResourceOptions::StorageModeShared,
+    );
+    let context_buf = device.new_buffer(
+        (d * mem::size_of::<f32>()) as u64,
+        MTLResourceOptions::StorageModeShared,
+    );
     let attn_params_buf = device.new_buffer(
         mem::size_of::<AttentionParams>() as u64,
         MTLResourceOptions::StorageModeShared,
     );
 
-    let hidden_buf = device.new_buffer((d * mem::size_of::<f32>()) as u64, MTLResourceOptions::StorageModeShared);
+    let hidden_buf = device.new_buffer(
+        (d * mem::size_of::<f32>()) as u64,
+        MTLResourceOptions::StorageModeShared,
+    );
     let lm_head_w_buf = device.new_buffer(
         (vocab * d * mem::size_of::<f32>()) as u64,
         MTLResourceOptions::StorageModeShared,
     );
-    let lm_head_b_buf = device.new_buffer((vocab * mem::size_of::<f32>()) as u64, MTLResourceOptions::StorageModeShared);
-    let logits_buf = device.new_buffer((vocab * mem::size_of::<f32>()) as u64, MTLResourceOptions::StorageModeShared);
+    let lm_head_b_buf = device.new_buffer(
+        (vocab * mem::size_of::<f32>()) as u64,
+        MTLResourceOptions::StorageModeShared,
+    );
+    let logits_buf = device.new_buffer(
+        (vocab * mem::size_of::<f32>()) as u64,
+        MTLResourceOptions::StorageModeShared,
+    );
     let logits_params_buf = device.new_buffer(
         mem::size_of::<LogitsParams>() as u64,
         MTLResourceOptions::StorageModeShared,
     );
 
     // LM head remains constant during inference, so we copy once.
-    as_mut_slice::<f32>(&lm_head_w_buf, vocab * d).copy_from_slice(&model.weights.lm_head_weight.data);
+    as_mut_slice::<f32>(&lm_head_w_buf, vocab * d)
+        .copy_from_slice(&model.weights.lm_head_weight.data);
     as_mut_slice::<f32>(&lm_head_b_buf, vocab).copy_from_slice(&model.weights.lm_head_bias.data);
 
     let mut token_ids = encode_prompt(&cfg.prompt, model_cfg.special_token_ids.bos);

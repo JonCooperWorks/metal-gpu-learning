@@ -174,9 +174,9 @@ fn main() {
         let encoder = command_buffer.new_compute_command_encoder();
 
         encoder.set_compute_pipeline_state(&pipeline_state);
-        encoder.set_buffer(0, Some(&input_buffer), 0);   // buffer(0) = data
-        encoder.set_buffer(1, Some(&sum_buffer), 0);     // buffer(1) = sum (atomic)
-        encoder.set_buffer(2, Some(&count_buffer), 0);   // buffer(2) = count
+        encoder.set_buffer(0, Some(&input_buffer), 0); // buffer(0) = data
+        encoder.set_buffer(1, Some(&sum_buffer), 0); // buffer(1) = sum (atomic)
+        encoder.set_buffer(2, Some(&count_buffer), 0); // buffer(2) = count
 
         let grid_size = MTLSize::new(num_elements as u64, 1, 1);
         let threadgroup_size = MTLSize::new(pipeline_state.thread_execution_width(), 1, 1);
@@ -201,7 +201,10 @@ fn main() {
         // ~4.29 billion. For N=10000, the sum is 50,005,000 which fits fine.
         // For larger N, you'd need u64 or a multi-pass approach.
         if gpu_sum as u64 == expected_sum {
-            println!("\nResult matches! The GPU correctly summed {} values.", num_elements);
+            println!(
+                "\nResult matches! The GPU correctly summed {} values.",
+                num_elements
+            );
         } else {
             println!("\nMISMATCH! Something went wrong.");
             println!("This could happen if:");
@@ -214,10 +217,7 @@ fn main() {
         // =====================================================================
         let cpu_sum: u64 = input_data.iter().map(|&x| x as u64).sum();
         println!("\nCPU verification: {}", cpu_sum);
-        println!(
-            "CPU matches GPU:  {}",
-            cpu_sum == gpu_sum as u64
-        );
+        println!("CPU matches GPU:  {}", cpu_sum == gpu_sum as u64);
 
         // =====================================================================
         // PERFORMANCE NOTE

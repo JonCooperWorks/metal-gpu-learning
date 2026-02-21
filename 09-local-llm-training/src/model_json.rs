@@ -111,7 +111,11 @@ impl ModelJson {
         hasher.update(&canonical);
         let actual = format!("{:x}", hasher.finalize());
         if actual != self.checksum {
-            bail!("checksum mismatch: expected {}, got {}", self.checksum, actual);
+            bail!(
+                "checksum mismatch: expected {}, got {}",
+                self.checksum,
+                actual
+            );
         }
         Ok(())
     }
@@ -122,7 +126,11 @@ impl ModelJson {
     /// or wrong projection dimensions before runtime compute starts.
     pub fn validate_shapes(&self) -> Result<()> {
         let cfg = &self.model_config;
-        expect_shape(&self.weights.token_embedding, &[cfg.vocab_size, cfg.d_model], "token_embedding")?;
+        expect_shape(
+            &self.weights.token_embedding,
+            &[cfg.vocab_size, cfg.d_model],
+            "token_embedding",
+        )?;
         expect_shape(
             &self.weights.position_embedding,
             &[cfg.max_seq_len, cfg.d_model],
@@ -137,34 +145,78 @@ impl ModelJson {
         }
         for (i, layer) in self.weights.layers.iter().enumerate() {
             let p = format!("layers[{i}]");
-            expect_shape(&layer.ln1_weight, &[cfg.d_model], &format!("{p}.ln1_weight"))?;
+            expect_shape(
+                &layer.ln1_weight,
+                &[cfg.d_model],
+                &format!("{p}.ln1_weight"),
+            )?;
             expect_shape(&layer.ln1_bias, &[cfg.d_model], &format!("{p}.ln1_bias"))?;
-            expect_shape(&layer.wq_weight, &[cfg.d_model, cfg.d_model], &format!("{p}.wq_weight"))?;
+            expect_shape(
+                &layer.wq_weight,
+                &[cfg.d_model, cfg.d_model],
+                &format!("{p}.wq_weight"),
+            )?;
             expect_shape(&layer.wq_bias, &[cfg.d_model], &format!("{p}.wq_bias"))?;
-            expect_shape(&layer.wk_weight, &[cfg.d_model, cfg.d_model], &format!("{p}.wk_weight"))?;
+            expect_shape(
+                &layer.wk_weight,
+                &[cfg.d_model, cfg.d_model],
+                &format!("{p}.wk_weight"),
+            )?;
             expect_shape(&layer.wk_bias, &[cfg.d_model], &format!("{p}.wk_bias"))?;
-            expect_shape(&layer.wv_weight, &[cfg.d_model, cfg.d_model], &format!("{p}.wv_weight"))?;
+            expect_shape(
+                &layer.wv_weight,
+                &[cfg.d_model, cfg.d_model],
+                &format!("{p}.wv_weight"),
+            )?;
             expect_shape(&layer.wv_bias, &[cfg.d_model], &format!("{p}.wv_bias"))?;
-            expect_shape(&layer.wo_weight, &[cfg.d_model, cfg.d_model], &format!("{p}.wo_weight"))?;
+            expect_shape(
+                &layer.wo_weight,
+                &[cfg.d_model, cfg.d_model],
+                &format!("{p}.wo_weight"),
+            )?;
             expect_shape(&layer.wo_bias, &[cfg.d_model], &format!("{p}.wo_bias"))?;
-            expect_shape(&layer.ln2_weight, &[cfg.d_model], &format!("{p}.ln2_weight"))?;
+            expect_shape(
+                &layer.ln2_weight,
+                &[cfg.d_model],
+                &format!("{p}.ln2_weight"),
+            )?;
             expect_shape(&layer.ln2_bias, &[cfg.d_model], &format!("{p}.ln2_bias"))?;
-            expect_shape(&layer.ff1_weight, &[cfg.ffn_hidden, cfg.d_model], &format!("{p}.ff1_weight"))?;
+            expect_shape(
+                &layer.ff1_weight,
+                &[cfg.ffn_hidden, cfg.d_model],
+                &format!("{p}.ff1_weight"),
+            )?;
             expect_shape(&layer.ff1_bias, &[cfg.ffn_hidden], &format!("{p}.ff1_bias"))?;
-            expect_shape(&layer.ff2_weight, &[cfg.d_model, cfg.ffn_hidden], &format!("{p}.ff2_weight"))?;
+            expect_shape(
+                &layer.ff2_weight,
+                &[cfg.d_model, cfg.ffn_hidden],
+                &format!("{p}.ff2_weight"),
+            )?;
             expect_shape(&layer.ff2_bias, &[cfg.d_model], &format!("{p}.ff2_bias"))?;
         }
         expect_shape(&self.weights.ln_f_weight, &[cfg.d_model], "ln_f_weight")?;
         expect_shape(&self.weights.ln_f_bias, &[cfg.d_model], "ln_f_bias")?;
-        expect_shape(&self.weights.lm_head_weight, &[cfg.vocab_size, cfg.d_model], "lm_head_weight")?;
-        expect_shape(&self.weights.lm_head_bias, &[cfg.vocab_size], "lm_head_bias")?;
+        expect_shape(
+            &self.weights.lm_head_weight,
+            &[cfg.vocab_size, cfg.d_model],
+            "lm_head_weight",
+        )?;
+        expect_shape(
+            &self.weights.lm_head_bias,
+            &[cfg.vocab_size],
+            "lm_head_bias",
+        )?;
         Ok(())
     }
 }
 
 fn expect_shape(arr: &ArrayF32, expected: &[usize], name: &str) -> Result<()> {
     if arr.shape != expected {
-        bail!("shape mismatch for {name}: expected {:?} got {:?}", expected, arr.shape);
+        bail!(
+            "shape mismatch for {name}: expected {:?} got {:?}",
+            expected,
+            arr.shape
+        );
     }
     let expected_len: usize = expected.iter().product();
     if arr.data.len() != expected_len {
@@ -193,13 +245,31 @@ mod tests {
     #[test]
     fn checksum_round_trip() {
         let weights = Weights {
-            token_embedding: ArrayF32 { shape: vec![1, 1], data: vec![1.0] },
-            position_embedding: ArrayF32 { shape: vec![1, 1], data: vec![2.0] },
+            token_embedding: ArrayF32 {
+                shape: vec![1, 1],
+                data: vec![1.0],
+            },
+            position_embedding: ArrayF32 {
+                shape: vec![1, 1],
+                data: vec![2.0],
+            },
             layers: vec![],
-            ln_f_weight: ArrayF32 { shape: vec![1], data: vec![1.0] },
-            ln_f_bias: ArrayF32 { shape: vec![1], data: vec![0.0] },
-            lm_head_weight: ArrayF32 { shape: vec![1, 1], data: vec![1.0] },
-            lm_head_bias: ArrayF32 { shape: vec![1], data: vec![0.0] },
+            ln_f_weight: ArrayF32 {
+                shape: vec![1],
+                data: vec![1.0],
+            },
+            ln_f_bias: ArrayF32 {
+                shape: vec![1],
+                data: vec![0.0],
+            },
+            lm_head_weight: ArrayF32 {
+                shape: vec![1, 1],
+                data: vec![1.0],
+            },
+            lm_head_bias: ArrayF32 {
+                shape: vec![1],
+                data: vec![0.0],
+            },
         };
         let canonical = serde_json::to_vec(&weights).unwrap();
         let mut hasher = Sha256::new();
@@ -214,7 +284,11 @@ mod tests {
                 d_model: 1,
                 n_layers: 0,
                 ffn_hidden: 1,
-                special_token_ids: SpecialTokenIds { pad: 256, bos: 257, eos: 258 },
+                special_token_ids: SpecialTokenIds {
+                    pad: 256,
+                    bos: 257,
+                    eos: 258,
+                },
             },
             tokenizer: TokenizerConfig {
                 r#type: "byte_level".into(),

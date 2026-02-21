@@ -76,17 +76,134 @@ const EOS_ID: usize = 2;
 const UNK_ID: usize = 0;
 
 const VOCAB: [&str; 128] = [
-    "<unk>", "<bos>", "<eos>", "hello", "hi", "hey", "chat", "assistant", "user", "i", "you", "we",
-    "they", "it", "am", "are", "is", "was", "be", "have", "do", "can", "will", "should", "please",
-    "thanks", "thank", "what", "why", "how", "when", "where", "who", "help", "explain", "show", "tell",
-    "build", "make", "create", "write", "read", "update", "fix", "test", "run", "code", "project", "lesson",
-    "gpu", "metal", "rust", "llm", "model", "models", "attention", "token", "tokens", "prompt", "response",
-    "generate", "generation", "predict", "next", "word", "text", "simple", "useful", "tiny", "basic", "real",
-    "example", "demo", "kernel", "pipeline", "loop", "step", "math", "vector", "matrix", "softmax", "logits",
-    "probability", "context", "embedding", "weights", "train", "training", "inference", "memory", "speed",
-    "fast", "slow", "good", "better", "best", "great", "clear", "clean", "safe", "deterministic", "repeat",
-    "chatbot", "conversation", "question", "answer", "about", "for", "with", "from", "to", "in", "on", "of",
-    "and", "or", "not", "this", "that", "these", "those", "a", "an", "the", "yes", "no", "ok", "done",
+    "<unk>",
+    "<bos>",
+    "<eos>",
+    "hello",
+    "hi",
+    "hey",
+    "chat",
+    "assistant",
+    "user",
+    "i",
+    "you",
+    "we",
+    "they",
+    "it",
+    "am",
+    "are",
+    "is",
+    "was",
+    "be",
+    "have",
+    "do",
+    "can",
+    "will",
+    "should",
+    "please",
+    "thanks",
+    "thank",
+    "what",
+    "why",
+    "how",
+    "when",
+    "where",
+    "who",
+    "help",
+    "explain",
+    "show",
+    "tell",
+    "build",
+    "make",
+    "create",
+    "write",
+    "read",
+    "update",
+    "fix",
+    "test",
+    "run",
+    "code",
+    "project",
+    "lesson",
+    "gpu",
+    "metal",
+    "rust",
+    "llm",
+    "model",
+    "models",
+    "attention",
+    "token",
+    "tokens",
+    "prompt",
+    "response",
+    "generate",
+    "generation",
+    "predict",
+    "next",
+    "word",
+    "text",
+    "simple",
+    "useful",
+    "tiny",
+    "basic",
+    "real",
+    "example",
+    "demo",
+    "kernel",
+    "pipeline",
+    "loop",
+    "step",
+    "math",
+    "vector",
+    "matrix",
+    "softmax",
+    "logits",
+    "probability",
+    "context",
+    "embedding",
+    "weights",
+    "train",
+    "training",
+    "inference",
+    "memory",
+    "speed",
+    "fast",
+    "slow",
+    "good",
+    "better",
+    "best",
+    "great",
+    "clear",
+    "clean",
+    "safe",
+    "deterministic",
+    "repeat",
+    "chatbot",
+    "conversation",
+    "question",
+    "answer",
+    "about",
+    "for",
+    "with",
+    "from",
+    "to",
+    "in",
+    "on",
+    "of",
+    "and",
+    "or",
+    "not",
+    "this",
+    "that",
+    "these",
+    "those",
+    "a",
+    "an",
+    "the",
+    "yes",
+    "no",
+    "ok",
+    "done",
 ];
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -392,7 +509,12 @@ fn stable_softmax(logits: &[f32]) -> Vec<f32> {
     exps
 }
 
-fn attention_cpu_reference(q: &[f32], k_all: &[f32], v_all: &[f32], seq_len: usize) -> AttentionOutputs {
+fn attention_cpu_reference(
+    q: &[f32],
+    k_all: &[f32],
+    v_all: &[f32],
+    seq_len: usize,
+) -> AttentionOutputs {
     let d = D_MODEL;
     let scale = 1.0f32 / (d as f32).sqrt();
 
@@ -428,7 +550,11 @@ fn find_top_k(probs: &[f32], k: usize) -> Vec<TopKEntry> {
         .map(|(id, &prob)| TopKEntry { token_id: id, prob })
         .collect();
 
-    entries.sort_by(|a, b| b.prob.partial_cmp(&a.prob).unwrap_or(std::cmp::Ordering::Equal));
+    entries.sort_by(|a, b| {
+        b.prob
+            .partial_cmp(&a.prob)
+            .unwrap_or(std::cmp::Ordering::Equal)
+    });
     entries.truncate(k.min(entries.len()));
     entries
 }
@@ -559,9 +685,15 @@ fn run() -> Result<(), String> {
         ));
     }
 
-    let device = Device::system_default().ok_or_else(|| "No Metal-capable GPU found".to_string())?;
+    let device =
+        Device::system_default().ok_or_else(|| "No Metal-capable GPU found".to_string())?;
     println!("Using GPU: {}", device.name());
-    println!("validate={}  d_model={}  vocab={}", config.validate.as_str(), D_MODEL, VOCAB.len());
+    println!(
+        "validate={}  d_model={}  vocab={}",
+        config.validate.as_str(),
+        D_MODEL,
+        VOCAB.len()
+    );
 
     let options = CompileOptions::new();
     let library = device
@@ -706,7 +838,10 @@ fn run() -> Result<(), String> {
         let top_k = find_top_k(&probs, config.top_k as usize);
 
         println!("\nStep {}", step + 1);
-        println!("  seq_len={}  chosen={} ({})", seq_len, next_token, VOCAB[next_token]);
+        println!(
+            "  seq_len={}  chosen={} ({})",
+            seq_len, next_token, VOCAB[next_token]
+        );
         println!("  attention over prefix:");
         for (i, &w) in gpu_attn.iter().enumerate() {
             let tok = VOCAB[token_ids[i]];
@@ -716,9 +851,7 @@ fn run() -> Result<(), String> {
         for entry in top_k {
             println!(
                 "    {:>14} (id {:>2}): {:.5}",
-                VOCAB[entry.token_id],
-                entry.token_id,
-                entry.prob
+                VOCAB[entry.token_id], entry.token_id, entry.prob
             );
         }
 
@@ -746,7 +879,9 @@ fn run() -> Result<(), String> {
     println!("Prompt + generated: {}", full_text);
 
     if config.validate == ValidateMode::On {
-        println!("\nValidation: PASS (GPU attention context matches CPU reference within tolerance)");
+        println!(
+            "\nValidation: PASS (GPU attention context matches CPU reference within tolerance)"
+        );
     }
 
     Ok(())

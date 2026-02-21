@@ -161,17 +161,26 @@ fn parse_args() -> Result<(Config, OverrideFlags)> {
                 i += 2;
             }
             "--seq-len" => {
-                cfg.seq_len = args.get(i + 1).context("missing --seq-len value")?.parse()?;
+                cfg.seq_len = args
+                    .get(i + 1)
+                    .context("missing --seq-len value")?
+                    .parse()?;
                 flags.seq_len = true;
                 i += 2;
             }
             "--batch-size" => {
-                cfg.batch_size = args.get(i + 1).context("missing --batch-size value")?.parse()?;
+                cfg.batch_size = args
+                    .get(i + 1)
+                    .context("missing --batch-size value")?
+                    .parse()?;
                 flags.batch_size = true;
                 i += 2;
             }
             "--d-model" => {
-                cfg.d_model = args.get(i + 1).context("missing --d-model value")?.parse()?;
+                cfg.d_model = args
+                    .get(i + 1)
+                    .context("missing --d-model value")?
+                    .parse()?;
                 flags.d_model = true;
                 i += 2;
             }
@@ -191,17 +200,26 @@ fn parse_args() -> Result<(Config, OverrideFlags)> {
                 i += 2;
             }
             "--warmup-steps" => {
-                cfg.warmup_steps = args.get(i + 1).context("missing --warmup-steps value")?.parse()?;
+                cfg.warmup_steps = args
+                    .get(i + 1)
+                    .context("missing --warmup-steps value")?
+                    .parse()?;
                 flags.warmup_steps = true;
                 i += 2;
             }
             "--eval-every" => {
-                cfg.eval_every = args.get(i + 1).context("missing --eval-every value")?.parse()?;
+                cfg.eval_every = args
+                    .get(i + 1)
+                    .context("missing --eval-every value")?
+                    .parse()?;
                 flags.eval_every = true;
                 i += 2;
             }
             "--eval-batches" => {
-                cfg.eval_batches = args.get(i + 1).context("missing --eval-batches value")?.parse()?;
+                cfg.eval_batches = args
+                    .get(i + 1)
+                    .context("missing --eval-batches value")?
+                    .parse()?;
                 flags.eval_batches = true;
                 i += 2;
             }
@@ -218,11 +236,15 @@ fn parse_args() -> Result<(Config, OverrideFlags)> {
                 i += 2;
             }
             "--auto-hardware" => {
-                cfg.auto_hardware = parse_on_off(args.get(i + 1).context("missing --auto-hardware value")?)?;
+                cfg.auto_hardware =
+                    parse_on_off(args.get(i + 1).context("missing --auto-hardware value")?)?;
                 i += 2;
             }
             "--profile" => {
-                cfg.profile = args.get(i + 1).context("missing --profile value")?.to_string();
+                cfg.profile = args
+                    .get(i + 1)
+                    .context("missing --profile value")?
+                    .to_string();
                 flags.profile = true;
                 i += 2;
             }
@@ -283,7 +305,13 @@ fn sample_batch(
 // Learning-rate scheduler:
 // - Warmup: linearly increase LR to max_lr.
 // - Decay: cosine curve down toward min_lr.
-fn lr_for_step(step: usize, total_steps: usize, warmup_steps: usize, max_lr: f64, min_lr: f64) -> f64 {
+fn lr_for_step(
+    step: usize,
+    total_steps: usize,
+    warmup_steps: usize,
+    max_lr: f64,
+    min_lr: f64,
+) -> f64 {
     if step < warmup_steps {
         let pct = (step as f64 + 1.0) / warmup_steps.max(1) as f64;
         return max_lr * pct;
@@ -393,7 +421,11 @@ fn apply_hardware_profile(cfg: &mut Config, flags: &OverrideFlags, profile: &str
             set_usize(&mut cfg.warmup_steps, 600, flags.warmup_steps);
             set_usize(&mut cfg.eval_every, 300, flags.eval_every);
             set_usize(&mut cfg.eval_batches, 24, flags.eval_batches);
-            set_u64(&mut cfg.time_budget_seconds, 2700, flags.time_budget_seconds);
+            set_u64(
+                &mut cfg.time_budget_seconds,
+                2700,
+                flags.time_budget_seconds,
+            );
         }
         "balanced" => {
             set_usize(&mut cfg.steps, 12_000, flags.steps);
@@ -406,7 +438,11 @@ fn apply_hardware_profile(cfg: &mut Config, flags: &OverrideFlags, profile: &str
             set_usize(&mut cfg.warmup_steps, 300, flags.warmup_steps);
             set_usize(&mut cfg.eval_every, 200, flags.eval_every);
             set_usize(&mut cfg.eval_batches, 16, flags.eval_batches);
-            set_u64(&mut cfg.time_budget_seconds, 1200, flags.time_budget_seconds);
+            set_u64(
+                &mut cfg.time_budget_seconds,
+                1200,
+                flags.time_budget_seconds,
+            );
         }
         "baseline" => {
             set_usize(&mut cfg.steps, 1200, flags.steps);
@@ -515,7 +551,8 @@ fn main() -> Result<()> {
 
     let probe_s = probe_start.elapsed().as_secs_f64().max(1e-6);
     let toks_per_s = train_tokens_seen as f64 / probe_s;
-    let budgeted_steps = ((cfg.time_budget_seconds as f64 * toks_per_s) as usize / batch_tokens).max(1);
+    let budgeted_steps =
+        ((cfg.time_budget_seconds as f64 * toks_per_s) as usize / batch_tokens).max(1);
     let total_steps = cfg.steps.min(budgeted_steps.max(warmup_probe));
     println!(
         "steps requested={} adaptive_cap={} running_steps={} (~{:.1} tok/s)",
@@ -603,7 +640,10 @@ fn main() -> Result<()> {
 
     println!("Saved checkpoint: {}", cfg.out.display());
     println!("Saved metadata:   {}", meta_path.display());
-    println!("Final losses: train={:.4} val={:.4}", final_train_loss, final_val_loss);
+    println!(
+        "Final losses: train={:.4} val={:.4}",
+        final_train_loss, final_val_loss
+    );
 
     Ok(())
 }

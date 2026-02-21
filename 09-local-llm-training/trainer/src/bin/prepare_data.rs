@@ -94,7 +94,10 @@ fn main() -> Result<()> {
     }
 
     if all_tokens.len() < 1024 {
-        bail!("dataset too small after tokenization: {} tokens", all_tokens.len());
+        bail!(
+            "dataset too small after tokenization: {} tokens",
+            all_tokens.len()
+        );
     }
 
     // 90/10 split for train/validation.

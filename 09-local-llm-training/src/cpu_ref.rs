@@ -38,7 +38,11 @@ pub fn forward_with_debug(model: &ModelJson, token_ids: &[u32]) -> Result<Forwar
         bail!("empty token sequence");
     }
     if seq_len > cfg.max_seq_len {
-        bail!("seq_len {} exceeds max_seq_len {}", seq_len, cfg.max_seq_len);
+        bail!(
+            "seq_len {} exceeds max_seq_len {}",
+            seq_len,
+            cfg.max_seq_len
+        );
     }
 
     let d = cfg.d_model;
@@ -63,12 +67,34 @@ pub fn forward_with_debug(model: &ModelJson, token_ids: &[u32]) -> Result<Forwar
     let mut layer_debug = Vec::with_capacity(cfg.n_layers);
     for layer in &model.weights.layers {
         // Pre-attention layer norm.
-        let h_ln1 = apply_layer_norm_rows(&x, seq_len, d, &layer.ln1_weight.data, &layer.ln1_bias.data);
+        let h_ln1 =
+            apply_layer_norm_rows(&x, seq_len, d, &layer.ln1_weight.data, &layer.ln1_bias.data);
 
         // Linear projections into Q, K, V spaces (all [T, D]).
-        let q_all = apply_linear_rows(&h_ln1, seq_len, d, d, &layer.wq_weight.data, &layer.wq_bias.data);
-        let k_all = apply_linear_rows(&h_ln1, seq_len, d, d, &layer.wk_weight.data, &layer.wk_bias.data);
-        let v_all = apply_linear_rows(&h_ln1, seq_len, d, d, &layer.wv_weight.data, &layer.wv_bias.data);
+        let q_all = apply_linear_rows(
+            &h_ln1,
+            seq_len,
+            d,
+            d,
+            &layer.wq_weight.data,
+            &layer.wq_bias.data,
+        );
+        let k_all = apply_linear_rows(
+            &h_ln1,
+            seq_len,
+            d,
+            d,
+            &layer.wk_weight.data,
+            &layer.wk_bias.data,
+        );
+        let v_all = apply_linear_rows(
+            &h_ln1,
+            seq_len,
+            d,
+            d,
+            &layer.wv_weight.data,
+            &layer.wv_bias.data,
+        );
 
         // Compute causal attention context for every timestep t using prefix [0..t].
         let mut ctx_all = vec![0.0f32; seq_len * d];
@@ -80,13 +106,21 @@ pub fn forward_with_debug(model: &ModelJson, token_ids: &[u32]) -> Result<Forwar
         }
 
         // Attention output projection + residual add.
-        let attn_out = apply_linear_rows(&ctx_all, seq_len, d, d, &layer.wo_weight.data, &layer.wo_bias.data);
+        let attn_out = apply_linear_rows(
+            &ctx_all,
+            seq_len,
+            d,
+            d,
+            &layer.wo_weight.data,
+            &layer.wo_bias.data,
+        );
         for i in 0..x.len() {
             x[i] += attn_out[i];
         }
 
         // Feed-forward network: LN -> Linear -> GELU -> Linear -> residual add.
-        let h_ln2 = apply_layer_norm_rows(&x, seq_len, d, &layer.ln2_weight.data, &layer.ln2_bias.data);
+        let h_ln2 =
+            apply_layer_norm_rows(&x, seq_len, d, &layer.ln2_weight.data, &layer.ln2_bias.data);
         let ff1 = apply_linear_rows(
             &h_ln2,
             seq_len,
@@ -210,7 +244,13 @@ fn gelu(x: f32) -> f32 {
     0.5 * x * (1.0 + (0.797_884_6 * (x + 0.044_715 * x * x * x)).tanh())
 }
 
-fn apply_layer_norm_rows(input: &[f32], rows: usize, cols: usize, gamma: &[f32], beta: &[f32]) -> Vec<f32> {
+fn apply_layer_norm_rows(
+    input: &[f32],
+    rows: usize,
+    cols: usize,
+    gamma: &[f32],
+    beta: &[f32],
+) -> Vec<f32> {
     // Per-row normalization over feature axis:
     // y = gamma * (x - mean)/sqrt(var + eps) + beta
     let mut out = vec![0.0f32; rows * cols];
@@ -250,7 +290,13 @@ fn apply_linear_rows(
     out
 }
 
-fn apply_linear_single(input: &[f32], in_dim: usize, out_dim: usize, weight: &[f32], bias: &[f32]) -> Vec<f32> {
+fn apply_linear_single(
+    input: &[f32],
+    in_dim: usize,
+    out_dim: usize,
+    weight: &[f32],
+    bias: &[f32],
+) -> Vec<f32> {
     // y_o = b_o + sum_i W[o, i] * x_i
     let mut out = vec![0.0f32; out_dim];
     for o in 0..out_dim {

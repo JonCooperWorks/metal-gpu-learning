@@ -103,7 +103,9 @@ fn main() {
         let a_data: Vec<f32> = (0..num_elements).map(|x| x as f32).collect();
 
         // B = [1000.0, 999.0, 998.0, ..., 1.0]
-        let b_data: Vec<f32> = (0..num_elements).map(|x| (num_elements - x) as f32).collect();
+        let b_data: Vec<f32> = (0..num_elements)
+            .map(|x| (num_elements - x) as f32)
+            .collect();
 
         // Expected: C[i] = A[i] + B[i] = i + (1000 - i) = 1000.0 for all i
 
@@ -127,10 +129,7 @@ fn main() {
         );
 
         // Output buffer C -- empty, GPU will fill it
-        let buffer_c = device.new_buffer(
-            buffer_size,
-            MTLResourceOptions::StorageModeShared,
-        );
+        let buffer_c = device.new_buffer(buffer_size, MTLResourceOptions::StorageModeShared);
 
         // Count buffer -- a single u32 telling the shader how many elements
         // we have. This is how you pass scalar parameters to Metal shaders.
@@ -156,10 +155,10 @@ fn main() {
 
         // Bind all four buffers to their respective indices.
         // These indices MUST match the [[ buffer(N) ]] attributes in the shader.
-        encoder.set_buffer(0, Some(&buffer_a), 0);       // buffer(0) = a
-        encoder.set_buffer(1, Some(&buffer_b), 0);       // buffer(1) = b
-        encoder.set_buffer(2, Some(&buffer_c), 0);       // buffer(2) = c (output)
-        encoder.set_buffer(3, Some(&buffer_count), 0);   // buffer(3) = count
+        encoder.set_buffer(0, Some(&buffer_a), 0); // buffer(0) = a
+        encoder.set_buffer(1, Some(&buffer_b), 0); // buffer(1) = b
+        encoder.set_buffer(2, Some(&buffer_c), 0); // buffer(2) = c (output)
+        encoder.set_buffer(3, Some(&buffer_count), 0); // buffer(3) = count
 
         // =====================================================================
         // Thread dispatch with non-power-of-2 data
@@ -182,12 +181,8 @@ fn main() {
         // =====================================================================
         // Read back and verify results
         // =====================================================================
-        let results: &[f32] = unsafe {
-            std::slice::from_raw_parts(
-                buffer_c.contents() as *const f32,
-                num_elements,
-            )
-        };
+        let results: &[f32] =
+            unsafe { std::slice::from_raw_parts(buffer_c.contents() as *const f32, num_elements) };
 
         // Print a sample of results
         println!("Vector Addition: C[i] = A[i] + B[i]\n");

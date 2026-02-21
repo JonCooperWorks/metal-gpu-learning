@@ -283,13 +283,17 @@ fn print_usage() {
     );
     println!();
     println!("Core flags:");
-    println!("  --input <path>                  Local parquet path (required unless --list-kernels)");
+    println!(
+        "  --input <path>                  Local parquet path (required unless --list-kernels)"
+    );
     println!("  --kernels <1,3,7>              Comma-separated kernel IDs (required unless --list-kernels)");
     println!("  --list-kernels                 Print kernel catalog and exit");
     println!("  --group-by billing_npi|servicing_npi|hcpcs|month|billing_npi_hcpcs (default: billing_npi)");
     println!("  --top-k <u32>                  Number of rows/groups to display (default: {DEFAULT_TOP_K})");
     println!("  --min-claims <u32>             Drop rows with fewer claims (default: {DEFAULT_MIN_CLAIMS})");
-    println!("  --chunk-rows <u32>             Dispatch chunk size (default: {DEFAULT_CHUNK_ROWS})");
+    println!(
+        "  --chunk-rows <u32>             Dispatch chunk size (default: {DEFAULT_CHUNK_ROWS})"
+    );
     println!("  --memory-fraction <f64>        Memory budget hint for future chunk auto-sizing (default: {DEFAULT_MEMORY_FRACTION:.2})");
     println!("  --mode single|double           Scheduling mode label (default: double)");
     println!("  --compare-cpu on|off           Compute CPU reference scores (default: on)");
@@ -297,12 +301,18 @@ fn print_usage() {
     println!("  --output-json <path>           Write report JSON");
     println!();
     println!("Threshold flags:");
-    println!("  --k2-threshold <f32>           Z-score threshold (default: {DEFAULT_K2_THRESHOLD})");
-    println!("  --k3-threshold <f32>           MAD threshold on paid (default: {DEFAULT_K3_THRESHOLD})");
+    println!(
+        "  --k2-threshold <f32>           Z-score threshold (default: {DEFAULT_K2_THRESHOLD})"
+    );
+    println!(
+        "  --k3-threshold <f32>           MAD threshold on paid (default: {DEFAULT_K3_THRESHOLD})"
+    );
     println!("  --k4-threshold <f32>           MAD threshold on paid/claim (default: {DEFAULT_K4_THRESHOLD})");
     println!("  --k5-ratio-threshold <f32>     MoM ratio threshold (default: {DEFAULT_K5_RATIO_THRESHOLD})");
     println!("  --k5-abs-floor <f32>           MoM absolute delta floor (default: {DEFAULT_K5_ABS_FLOOR})");
-    println!("  --k6-threshold <f32>           Drift sigma threshold (default: {DEFAULT_K6_THRESHOLD})");
+    println!(
+        "  --k6-threshold <f32>           Drift sigma threshold (default: {DEFAULT_K6_THRESHOLD})"
+    );
     println!("  --k7-percentile <f32>          Rarity anomaly percentile (default: {DEFAULT_K7_PERCENTILE})");
     println!("  --k8-top-percent <f32>         Distance top-percent cutoff (default: {DEFAULT_K8_TOP_PERCENT})");
 }
@@ -399,7 +409,11 @@ fn parse_args() -> Result<CliConfig> {
                 i += 2;
             }
             "--mode" => {
-                mode = match args.get(i + 1).context("missing value for --mode")?.as_str() {
+                mode = match args
+                    .get(i + 1)
+                    .context("missing value for --mode")?
+                    .as_str()
+                {
                     "single" => Mode::Single,
                     "double" => Mode::Double,
                     v => bail!("invalid --mode '{v}'"),
@@ -419,7 +433,11 @@ fn parse_args() -> Result<CliConfig> {
                 i += 2;
             }
             "--validate" => {
-                validate = match args.get(i + 1).context("missing value for --validate")?.as_str() {
+                validate = match args
+                    .get(i + 1)
+                    .context("missing value for --validate")?
+                    .as_str()
+                {
                     "full" => ValidationMode::Full,
                     "spot" => ValidationMode::Spot,
                     "off" => ValidationMode::Off,
@@ -693,7 +711,13 @@ fn extract_month(array: &dyn Array, row: usize) -> Option<(i32, String)> {
     Some((approx_days, format!("{:04}-{:02}-01", year, month)))
 }
 
-fn build_group_key(group_by: GroupBy, billing: &str, servicing: &str, hcpcs: &str, month: &str) -> String {
+fn build_group_key(
+    group_by: GroupBy,
+    billing: &str,
+    servicing: &str,
+    hcpcs: &str,
+    month: &str,
+) -> String {
     match group_by {
         GroupBy::BillingNpi => billing.to_string(),
         GroupBy::ServicingNpi => servicing.to_string(),
@@ -716,8 +740,13 @@ fn build_group_key(group_by: GroupBy, billing: &str, servicing: &str, hcpcs: &st
 // Return value:
 // - `rows`: dense row structs used by report assembly
 // - `group_lookup`: reverse map (group_id -> human-readable group key)
-fn load_rows(path: &Path, min_claims: u32, group_by: GroupBy) -> Result<(Vec<InputRow>, Vec<String>)> {
-    let file = fs::File::open(path).with_context(|| format!("failed to open {}", path.display()))?;
+fn load_rows(
+    path: &Path,
+    min_claims: u32,
+    group_by: GroupBy,
+) -> Result<(Vec<InputRow>, Vec<String>)> {
+    let file =
+        fs::File::open(path).with_context(|| format!("failed to open {}", path.display()))?;
 
     let mut builder = ParquetRecordBatchReaderBuilder::try_new(file)
         .with_context(|| format!("failed to build parquet reader for {}", path.display()))?;
@@ -731,17 +760,25 @@ fn load_rows(path: &Path, min_claims: u32, group_by: GroupBy) -> Result<(Vec<Inp
     let idx_servicing = schema
         .index_of("SERVICING_PROVIDER_NPI_NUM")
         .context("missing SERVICING_PROVIDER_NPI_NUM")?;
-    let idx_hcpcs = schema.index_of("HCPCS_CODE").context("missing HCPCS_CODE")?;
+    let idx_hcpcs = schema
+        .index_of("HCPCS_CODE")
+        .context("missing HCPCS_CODE")?;
     let idx_month = schema
         .index_of("CLAIM_FROM_MONTH")
         .context("missing CLAIM_FROM_MONTH")?;
     let idx_benef = schema
         .index_of("TOTAL_UNIQUE_BENEFICIARIES")
         .context("missing TOTAL_UNIQUE_BENEFICIARIES")?;
-    let idx_claims = schema.index_of("TOTAL_CLAIMS").context("missing TOTAL_CLAIMS")?;
-    let idx_paid = schema.index_of("TOTAL_PAID").context("missing TOTAL_PAID")?;
+    let idx_claims = schema
+        .index_of("TOTAL_CLAIMS")
+        .context("missing TOTAL_CLAIMS")?;
+    let idx_paid = schema
+        .index_of("TOTAL_PAID")
+        .context("missing TOTAL_PAID")?;
 
-    let mut reader = builder.build().context("failed to create parquet batch reader")?;
+    let mut reader = builder
+        .build()
+        .context("failed to create parquet batch reader")?;
 
     let mut rows = Vec::new();
     let mut group_map = HashMap::<String, u32>::new();
@@ -1163,7 +1200,13 @@ fn gpu_scores(
     Ok(output)
 }
 
-fn cpu_score_for_kernel(id: KernelId, idx: usize, features: &FeatureMatrix, paid_stats: DistributionStats, ppc_stats: DistributionStats) -> f32 {
+fn cpu_score_for_kernel(
+    id: KernelId,
+    idx: usize,
+    features: &FeatureMatrix,
+    paid_stats: DistributionStats,
+    ppc_stats: DistributionStats,
+) -> f32 {
     match id.0 {
         1 => features.paid[idx],
         // z-score anomaly on paid.
@@ -1171,10 +1214,13 @@ fn cpu_score_for_kernel(id: KernelId, idx: usize, features: &FeatureMatrix, paid
         2 => ((features.paid[idx] - paid_stats.mean) / paid_stats.std_dev.max(1e-6)).abs(),
         // Modified z-score with MAD.
         // mz = 0.6745 * |(x - median) / MAD|
-        3 => (0.6745 * (features.paid[idx] - paid_stats.median).abs() / paid_stats.mad.max(1e-6)).abs(),
+        3 => (0.6745 * (features.paid[idx] - paid_stats.median).abs() / paid_stats.mad.max(1e-6))
+            .abs(),
         4 => {
             // Same modified-z idea on paid-per-claim feature.
-            (0.6745 * (features.paid_per_claim[idx] - ppc_stats.median).abs() / ppc_stats.mad.max(1e-6)).abs()
+            (0.6745 * (features.paid_per_claim[idx] - ppc_stats.median).abs()
+                / ppc_stats.mad.max(1e-6))
+            .abs()
         }
         5 => features.mom_ratio[idx],
         6 => features.drift_sigma[idx].abs(),
@@ -1184,11 +1230,7 @@ fn cpu_score_for_kernel(id: KernelId, idx: usize, features: &FeatureMatrix, paid
     }
 }
 
-fn validate_gpu_cpu(
-    mode: ValidationMode,
-    gpu_scores: &[f32],
-    cpu_scores: &[f32],
-) -> usize {
+fn validate_gpu_cpu(mode: ValidationMode, gpu_scores: &[f32], cpu_scores: &[f32]) -> usize {
     if mode == ValidationMode::Off {
         return 0;
     }
@@ -1302,7 +1344,11 @@ fn anomaly_report(
     for (i, row) in rows.iter().enumerate() {
         let score = scores[i];
         let pass = match id.0 {
-            5 => score >= threshold && score.is_finite() && features.mom_abs_delta[i] >= cfg.k5_abs_floor,
+            5 => {
+                score >= threshold
+                    && score.is_finite()
+                    && features.mom_abs_delta[i] >= cfg.k5_abs_floor
+            }
             _ => score >= threshold && score.is_finite(),
         };
 
@@ -1571,7 +1617,8 @@ fn run(cfg: CliConfig) -> Result<()> {
     }
 
     if let Some(path) = cfg.output_json {
-        let payload = serde_json::to_vec_pretty(&report).context("failed to serialize JSON report")?;
+        let payload =
+            serde_json::to_vec_pretty(&report).context("failed to serialize JSON report")?;
         fs::write(&path, payload)
             .with_context(|| format!("failed to write output JSON {}", path.display()))?;
         println!();
@@ -1611,20 +1658,33 @@ mod tests {
         let batch = RecordBatch::try_new(
             schema.clone(),
             vec![
-                Arc::new(StringArray::from(vec!["111", "111", "222", "333", "333", "333"])),
-                Arc::new(StringArray::from(vec!["555", "555", "666", "777", "777", "777"])),
-                Arc::new(StringArray::from(vec!["A100", "A100", "B200", "C300", "C300", "C300"])),
-                Arc::new(Date32Array::from(vec![18_000, 18_030, 18_000, 18_000, 18_030, 18_060])),
+                Arc::new(StringArray::from(vec![
+                    "111", "111", "222", "333", "333", "333",
+                ])),
+                Arc::new(StringArray::from(vec![
+                    "555", "555", "666", "777", "777", "777",
+                ])),
+                Arc::new(StringArray::from(vec![
+                    "A100", "A100", "B200", "C300", "C300", "C300",
+                ])),
+                Arc::new(Date32Array::from(vec![
+                    18_000, 18_030, 18_000, 18_000, 18_030, 18_060,
+                ])),
                 Arc::new(Int64Array::from(vec![10, 12, 15, 20, 25, 30])),
                 Arc::new(Int64Array::from(vec![15, 20, 30, 40, 45, 55])),
-                Arc::new(Float64Array::from(vec![5000.0, 22000.0, 3500.0, 8000.0, 9000.0, 40000.0])),
+                Arc::new(Float64Array::from(vec![
+                    5000.0, 22000.0, 3500.0, 8000.0, 9000.0, 40000.0,
+                ])),
             ],
         )
         .context("failed to build fixture record batch")?;
 
         let file = fs::File::create(tmp.path()).context("failed to open fixture path for write")?;
-        let mut writer = ArrowWriter::try_new(file, schema, None).context("failed to create ArrowWriter")?;
-        writer.write(&batch).context("failed to write fixture batch")?;
+        let mut writer =
+            ArrowWriter::try_new(file, schema, None).context("failed to create ArrowWriter")?;
+        writer
+            .write(&batch)
+            .context("failed to write fixture batch")?;
         writer.close().context("failed to close fixture writer")?;
 
         Ok(tmp)
@@ -1727,7 +1787,13 @@ mod tests {
             for i in 0..rows.len() {
                 let cpu = cpu_score_for_kernel(KernelId(id), i, &features, paid_stats, ppc_stats);
                 let diff = (gpu_out[i] - cpu).abs();
-                assert!(diff <= 1e-3, "kernel {} mismatch at {} diff {}", id, i, diff);
+                assert!(
+                    diff <= 1e-3,
+                    "kernel {} mismatch at {} diff {}",
+                    id,
+                    i,
+                    diff
+                );
             }
         }
 

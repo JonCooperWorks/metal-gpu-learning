@@ -172,13 +172,17 @@ fn main() -> Result<()> {
     let (checkpoint_path, out_path) = parse_args()?;
 
     let meta_path = PathBuf::from(format!("{}.meta.json", checkpoint_path.display()));
-    let ckpt_meta: CheckpointMeta = serde_json::from_slice(
-        &fs::read(&meta_path)
-            .with_context(|| format!("missing checkpoint metadata file {}", meta_path.display()))?,
-    )?;
+    let ckpt_meta: CheckpointMeta =
+        serde_json::from_slice(&fs::read(&meta_path).with_context(|| {
+            format!("missing checkpoint metadata file {}", meta_path.display())
+        })?)?;
 
     if ckpt_meta.vocab_size != VOCAB_SIZE {
-        bail!("checkpoint vocab size mismatch: {} != {}", ckpt_meta.vocab_size, VOCAB_SIZE);
+        bail!(
+            "checkpoint vocab size mismatch: {} != {}",
+            ckpt_meta.vocab_size,
+            VOCAB_SIZE
+        );
     }
 
     let mut varmap = VarMap::new();
