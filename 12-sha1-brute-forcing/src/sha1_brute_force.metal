@@ -2,18 +2,42 @@
 using namespace metal;
 
 struct KernelParams {
+    // Candidate length for this dispatch pass.
     uint len;
+    // Radix for this dispatch (26, 36, 95). Included for diagnostics.
+    // A radix is a base-n number system.
+    // We don't actually use the radix here, but it's included for diagnostics.
     uint radix;
+
+    // Total number of candidates in this pass (= radix^len).
+    // We keep it 64-bit because radix^len grows quickly.
     ulong search_space;
+
+    // How many candidates each thread attempts per loop iteration.
+    // This is a throughput knob: higher means more work per thread,
+    // fewer global loop iterations, and (often) better ALU utilization.
     uint candidates_per_thread;
+
+    // Match mode:
+    //   0 = first match only (stop as soon as any thread finds a hit)
+    //   1 = collect all matches (up to max_matches)
     uint mode;          // 0=first, 1=all
+
+    // Maximum number of matches to record in "all" mode.
     uint max_matches;
+
+    // The ID of the alphabet to use for this dispatch.
+    // This is used to select the appropriate mapping function.
     uint alphabet_id;   // 0=lower, 1=lowernum, 2=printable
+
+    // The target SHA-1 digest to match.
+    // This is the hash that we are trying to find.
+    // SHA-1 digest is 5 words (A,B,C,D,E) in little-endian order.
     uint target_a;
     uint target_b;
-    uint target_c;
+    uint target_c;    // 0=lower, 1=lowernum, 2=printable
     uint target_d;
-    uint target_e;
+    uint target_e;    // 0=lower, 1=lowernum, 2=printable
 };
 
 inline uint rotl(uint x, uint s) {
@@ -78,14 +102,19 @@ inline void sha1_one_block(
     thread uint &d,
     thread uint &e
 ) {
+
+    // We will build the block in thread-local memory.
     thread uchar block[64];
     for (uint i = 0; i < 64; i++) {
         block[i] = 0u;
     }
 
+    // Let's copy the message bytes to the block.
     for (uint i = 0; i < len; i++) {
         block[i] = msg[i];
     }
+
+    // Time for padding!
     block[len] = 0x80u;
 
     // SHA-1 length field is 64-bit big-endian bit length.
@@ -94,14 +123,30 @@ inline void sha1_one_block(
         block[56 + i] = (uchar)((bit_len >> (56ul - 8ul * (ulong)i)) & 0xfful);
     }
 
-    thread uint w[80];
+
+    // I had a uint[80] before but ChatGPT told me I could use a ring buffer yeah that thing from second year.
+    // Holy shit how much weed did i smoke between uni and now??
+    // thread uint w[80];
+    // for (uint t = 0; t < 16; t++) {
+    //     w[t] = load_be_u32(&block[t * 4]);
+    // }
+    // for (uint t = 16; t < 80; t++) {
+    //     w[t] = rotl(w[t - 3] ^ w[t - 8] ^ w[t - 14] ^ w[t - 16], 1u);
+    // }
+
+    // So now we make a ring buffer of 16 elements.
+    // Since the SHA1 hash is a 5 word digest, we only need 16 elements and we can do
+    // some black magic to make it work much faster.
+    thread uint w[16];
+
+    // Now we can do the black magic.
     for (uint t = 0; t < 16; t++) {
-        w[t] = load_be_u32(&block[t * 4]);
-    }
-    for (uint t = 16; t < 80; t++) {
-        w[t] = rotl(w[t - 3] ^ w[t - 8] ^ w[t - 14] ^ w[t - 16], 1u);
+        w[t] = load_be_u32(&block[t * 4u]);
     }
 
+    // SHA-1 initial hash values.
+    // We use them because the spec said so - I leave that to smarter people than me.
+    // But one day I will know.
     uint h0 = 0x67452301u;
     uint h1 = 0xEFCDAB89u;
     uint h2 = 0x98BADCFEu;
@@ -115,7 +160,16 @@ inline void sha1_one_block(
     e = h4;
 
     for (uint t = 0; t < 80; t++) {
-        uint temp = rotl(a, 5u) + sha1_f(t, b, c, d) + e + sha1_k(t) + w[t];
+        uint wt;
+        if (t < 16u) {
+            wt = w[t];
+        } else {
+            uint s = t & 15u;
+            wt = rotl(w[(s + 13u) & 15u] ^ w[(s + 8u) & 15u] ^ w[(s + 2u) & 15u] ^ w[s], 1u);
+            w[s] = wt;
+        }
+
+        uint temp = rotl(a, 5u) + sha1_f(t, b, c, d) + e + sha1_k(t) + wt;
         e = d;
         d = c;
         c = rotl(b, 30u);
