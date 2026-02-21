@@ -159,12 +159,20 @@ inline void sha1_one_block(
     d = h3;
     e = h4;
 
+    // More black magic fuckery.
+    // The spec said so and I believe them.
     for (uint t = 0; t < 80; t++) {
         uint wt;
         if (t < 16u) {
             wt = w[t];
         } else {
             uint s = t & 15u;
+            // Ring buffer voodoo annotation:
+            //   s            == t mod 16       (slot for W[t] / old W[t-16])
+            //   (s + 13) & 15 == (t - 3) mod 16
+            //   (s + 8)  & 15 == (t - 8) mod 16
+            //   (s + 2)  & 15 == (t - 14) mod 16
+            // SHA-1 schedule: W[t] = rol1(W[t-3] ^ W[t-8] ^ W[t-14] ^ W[t-16]).
             wt = rotl(w[(s + 13u) & 15u] ^ w[(s + 8u) & 15u] ^ w[(s + 2u) & 15u] ^ w[s], 1u);
             w[s] = wt;
         }
