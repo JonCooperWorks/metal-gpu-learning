@@ -27,6 +27,7 @@ introducing Metal concepts from device discovery to parallel compute kernels.
 | 10 | [10-medicaid-provider-spending/](10-medicaid-provider-spending/) | Multi-kernel Medicaid analytics -- selectable kernels (1..8), anomaly scoring, CPU/GPU validation, and top-spender reporting |
 | 11 | [11-md5-brute-forcing/](11-md5-brute-forcing/) | GPU hash cracking tutorial -- brute-force a single MD5 target with charset-specialized kernels and throughput tuning |
 | 12 | [12-sha1-brute-forcing/](12-sha1-brute-forcing/) | GPU SHA-1 brute forcing -- one-kernel charset selection, host length ramp, and CPU/GPU validation modes |
+| 13 | [13-faster-sha1/](13-faster-sha1/) | Faster GPU SHA-1 brute forcing -- optimized candidate stepping + rolling SHA-1 schedule for higher throughput (GH/s class on larger search spaces) |
 
 ## How to Run
 
@@ -42,6 +43,9 @@ cargo run
 
 # Build everything at once
 cargo build --workspace
+
+# Run the optimized SHA-1 lesson
+cargo run --release -p faster-sha1 -- --hash <40hex> --charset lower --min-len 6 --max-len 6
 ```
 
 ## How to Read the Code
