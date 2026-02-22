@@ -4,10 +4,9 @@ using namespace metal;
 struct KernelParams {
     // Candidate length for this dispatch pass.
     uint len;
-    // Radix for this dispatch (26, 36, 95). Included for diagnostics.
-    // A radix is a base-n number system.
-    // We don't actually use the radix here, but it's included for diagnostics.
-    uint radix;
+    // Encoded alphabet enum from the host:
+    //   0 = lower, 1 = lowernum, 2 = printable
+    uint alphabet;
 
     // Total number of candidates in this pass (= radix^len).
     // We keep it 64-bit because radix^len grows quickly.
@@ -25,10 +24,6 @@ struct KernelParams {
 
     // Maximum number of matches to record in "all" mode.
     uint max_matches;
-
-    // The ID of the alphabet to use for this dispatch.
-    // This is used to select the appropriate mapping function.
-    uint alphabet_id;   // 0=lower, 1=lowernum, 2=printable
 
     // The target SHA-1 digest to match.
     // This is the hash that we are trying to find.
@@ -65,31 +60,89 @@ inline uint sha1_k(uint t) {
     return 0xCA62C1D6u;
 }
 
-inline void map_lower(ulong idx, uint len, thread uchar *out) {
+// Map a numeric candidate index to:
+//   - `digits[i]`: the i-th base-26 digit (least-significant digit first)
+//   - `msg[i]`: the corresponding ASCII byte
+//
+// We keep both because `digits` is cheap to increment, and `msg` is what SHA-1 consumes.
+inline void map_lower_state(ulong idx, uint len, thread uchar *msg, thread uchar *digits) {
     for (uint i = 0; i < len; i++) {
         uint digit = (uint)(idx % 26ul);
         idx /= 26ul;
-        out[i] = (uchar)('a' + digit);
+        digits[i] = (uchar)digit;
+        msg[i] = (uchar)('a' + digit);
     }
 }
 
-inline void map_lowernum(ulong idx, uint len, thread uchar *out) {
+// Same idea as `map_lower_state`, but for [a-z0-9] (radix 36).
+inline void map_lowernum_state(ulong idx, uint len, thread uchar *msg, thread uchar *digits) {
     for (uint i = 0; i < len; i++) {
         uint digit = (uint)(idx % 36ul);
         idx /= 36ul;
+        digits[i] = (uchar)digit;
         if (digit < 26u) {
-            out[i] = (uchar)('a' + digit);
+            msg[i] = (uchar)('a' + digit);
         } else {
-            out[i] = (uchar)('0' + (digit - 26u));
+            msg[i] = (uchar)('0' + (digit - 26u));
         }
     }
 }
 
-inline void map_printable(ulong idx, uint len, thread uchar *out) {
+// Same idea again, but for printable ASCII (0x20..0x7e, radix 95).
+inline void map_printable_state(ulong idx, uint len, thread uchar *msg, thread uchar *digits) {
     for (uint i = 0; i < len; i++) {
         uint digit = (uint)(idx % 95ul);
         idx /= 95ul;
-        out[i] = (uchar)(0x20u + digit);
+        digits[i] = (uchar)digit;
+        msg[i] = (uchar)(0x20u + digit);
+    }
+}
+
+// Odometer increment for radix-26.
+// `digits[0]` is the least-significant "wheel", so it rolls every candidate.
+// When a wheel wraps, we carry into the next wheel.
+inline void increment_lower(uint len, thread uchar *msg, thread uchar *digits) {
+    for (uint i = 0; i < len; i++) {
+        uchar next = (uchar)(digits[i] + 1u);
+        if (next < (uchar)26u) {
+            digits[i] = next;
+            msg[i] = (uchar)('a' + next);
+            return;
+        }
+        digits[i] = 0u;
+        msg[i] = (uchar)'a';
+    }
+}
+
+// Odometer increment for radix-36 ([a-z0-9]).
+inline void increment_lowernum(uint len, thread uchar *msg, thread uchar *digits) {
+    for (uint i = 0; i < len; i++) {
+        uchar next = (uchar)(digits[i] + 1u);
+        if (next < (uchar)36u) {
+            digits[i] = next;
+            if (next < (uchar)26u) {
+                msg[i] = (uchar)('a' + next);
+            } else {
+                msg[i] = (uchar)('0' + (next - (uchar)26u));
+            }
+            return;
+        }
+        digits[i] = 0u;
+        msg[i] = (uchar)'a';
+    }
+}
+
+// Odometer increment for radix-95 (printable ASCII).
+inline void increment_printable(uint len, thread uchar *msg, thread uchar *digits) {
+    for (uint i = 0; i < len; i++) {
+        uchar next = (uchar)(digits[i] + 1u);
+        if (next < (uchar)95u) {
+            digits[i] = next;
+            msg[i] = (uchar)(0x20u + next);
+            return;
+        }
+        digits[i] = 0u;
+        msg[i] = (uchar)0x20u;
     }
 }
 
@@ -235,30 +288,71 @@ kernel void sha1_brute_force(
     ulong base = (ulong)gid * (ulong)params.candidates_per_thread;
 
     thread uchar msg[55];
+    // We keep base-radix digits alongside `msg` so the inner loop can do an odometer-style
+    // increment instead of re-running `%` and `/` for every single candidate.
+    //
+    // Old way (slower inside the hot loop):
+    //   - Every candidate did a fresh integer->base-radix conversion.
+    //   - That means repeated `% radix` and `/ radix` in the inner loop.
+    //
+    // New way:
+    //   - Convert `start` once per mini-batch (`map_*_state`).
+    //   - For k=1..N, mutate the existing candidate in-place (`increment_*`).
+    //
+    // This tends to help when `candidates_per_thread > 1`, because we amortize the expensive
+    // divide/mod work across the whole mini-batch.
+    thread uchar digits[55];
 
     for (ulong start = base; start < params.search_space; start += step) {
         if (params.mode == 0u && atomic_load_explicit(found_flag, memory_order_relaxed) != 0u) {
             return;
         }
 
+        // This thread works on a contiguous mini-batch: `start .. start + batch_count`.
+        // We map the first candidate once, then increment in-place for the rest.
+        //
+        // Old code looked like this (inside the `k` loop):
+        //     ulong idx = start + (ulong)k;
+        //     if (params.alphabet == 0u) {
+        //         map_lower(idx, params.len, msg);
+        //     } else if (params.alphabet == 1u) {
+        //         map_lowernum(idx, params.len, msg);
+        //     } else {
+        //         map_printable(idx, params.len, msg);
+        //     }
+        //
+        // Which is perfectly correct, but it remaps from scratch every time.
+        //
+        // The new code below keeps `msg` and `digits` hot in thread-local memory and does
+        // a carry-propagating increment between candidates (like adding 1 to a number).
+        ulong remaining = params.search_space - start;
+        uint batch_count = params.candidates_per_thread;
+        if ((ulong)batch_count > remaining) {
+            batch_count = (uint)remaining;
+        }
+        if (batch_count == 0u) {
+            break;
+        }
+
+        // Determine the appropriate mapping function based on the alphabet enum.
+        // Same story as before: the params are uniform, so every thread takes the same path.
+        //
+        // Important detail:
+        //   `start` is the FIRST candidate in this mini-batch, so this is the only place where
+        //   we pay the full base conversion cost. Later candidates are derived by incrementing.
+        if (params.alphabet == 0u) {
+            map_lower_state(start, params.len, msg, digits);
+        } else if (params.alphabet == 1u) {
+            map_lowernum_state(start, params.len, msg, digits);
+        } else {
+            map_printable_state(start, params.len, msg, digits);
+        }
+
         #pragma unroll
         for (uint k = 0; k < 32u; k++) {
-            if (k >= params.candidates_per_thread) break;
+            if (k >= batch_count) break;
 
             ulong idx = start + (ulong)k;
-            if (idx >= params.search_space) break;
-
-            // Determine the appropriate mapping function based on the alphabet ID.
-            // This is fine because the params are set by the CPU, so this will always select the same branch
-            // per kernel run
-            // Benchmarking showed that this is slightly faster than 1 kernel per charset.
-            if (params.alphabet_id == 0u) {
-                map_lower(idx, params.len, msg);
-            } else if (params.alphabet_id == 1u) {
-                map_lowernum(idx, params.len, msg);
-            } else {
-                map_printable(idx, params.len, msg);
-            }
 
             uint a, b, c, d, e;
             sha1_one_block(msg, params.len, a, b, c, d, e);
@@ -273,6 +367,24 @@ kernel void sha1_brute_force(
                     return;
                 }
                 record_all(match_count, match_indices, params.max_matches, idx);
+            }
+
+            // Advance to the next candidate in this thread's contiguous mini-batch.
+            // This is the whole point of the optimization: carry propagation is much cheaper
+            // than converting `idx` -> base-radix digits from scratch every time.
+            //
+            // Example (lower, len=3):
+            //   "aaz" is stored as digits [25,0,0] because digit[0] is least-significant.
+            //   increment -> wrap digit[0] to 0 ('a'), carry into digit[1]
+            //   result is "aba" (digits [0,1,0]).
+            if (k + 1u < batch_count) {
+                if (params.alphabet == 0u) {
+                    increment_lower(params.len, msg, digits);
+                } else if (params.alphabet == 1u) {
+                    increment_lowernum(params.len, msg, digits);
+                } else {
+                    increment_printable(params.len, msg, digits);
+                }
             }
         }
     }

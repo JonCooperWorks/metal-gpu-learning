@@ -23,6 +23,7 @@ const DEFAULT_THREADS_PER_GROUP: u32 = 256;
 const DEFAULT_CANDIDATES_PER_THREAD: u32 = 8;
 const DEFAULT_PROGRESS_MS: u64 = 500;
 const DEFAULT_MAX_MATCHES: u32 = 1024;
+const MAX_CANDIDATES_PER_THREAD: u32 = 32;
 
 // SHA-1 processes data in 64-byte blocks. In this lesson we only support a single block,
 // which means: message bytes + 0x80 + 8-byte length field must fit in 64 bytes.
@@ -31,11 +32,12 @@ const MAX_ONE_BLOCK_LEN: u32 = 55;
 
 // Which alphabet to brute-force over. The GPU kernel gets a compact integer ID,
 // but the CLI and reports use these readable names.
+#[repr(u32)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 enum Charset {
-    Lower,
-    LowerNum,
-    Printable,
+    Lower = 0,
+    LowerNum = 1,
+    Printable = 2,
 }
 
 impl Charset {
@@ -84,15 +86,6 @@ impl Charset {
         }
     }
 
-    // Compact ID sent to the Metal kernel. The kernel branches on this once per tested
-    // candidate to choose the mapping routine.
-    fn alphabet_id(self) -> u32 {
-        match self {
-            Self::Lower => 0,
-            Self::LowerNum => 1,
-            Self::Printable => 2,
-        }
-    }
 }
 
 // Search strategy: stop on the first match or collect all matches (up to a buffer cap).
@@ -171,6 +164,7 @@ struct CliConfig {
     candidates_per_thread: u32,
     progress_ms: u64,
     max_matches: u32,
+    autotune: bool,
     json: Option<PathBuf>,
     verbose: bool,
 }
@@ -182,8 +176,8 @@ struct CliConfig {
 struct KernelParams {
     // Candidate string length for the current dispatch.
     len: u32,
-    // Alphabet size (26/36/95). Mostly informational for this kernel version.
-    radix: u32,
+    // Which alphabet mapping the kernel should use (encoded `Charset` discriminant).
+    alphabet: u32,
     // Total number of candidates for this length.
     search_space: u64,
     // How many candidate indices each thread tests inside its inner loop.
@@ -192,8 +186,6 @@ struct KernelParams {
     mode: u32,
     // Capacity of the `match_indices` output buffer in `all` mode.
     max_matches: u32,
-    // Which alphabet mapping the kernel should use.
-    alphabet_id: u32,
     // Target SHA-1 digest split into five big-endian 32-bit words.
     target_a: u32,
     target_b: u32,
@@ -254,6 +246,7 @@ OPTIONS:
   --candidates-per-thread <u32>          (default: 8)
   --progress-ms <u64>                    (default: 500)
   --max-matches <u32>                    (default: 1024, only for mode=all)
+  --autotune                             Sweep launch params and pick best pair
   --json <path>                          Write JSON report
   --verbose                              Per-length breakdown output
 
@@ -277,6 +270,7 @@ fn parse_cli() -> Result<CliConfig> {
     let mut candidates_per_thread = DEFAULT_CANDIDATES_PER_THREAD;
     let mut progress_ms = DEFAULT_PROGRESS_MS;
     let mut max_matches = DEFAULT_MAX_MATCHES;
+    let mut autotune = false;
     let mut json: Option<PathBuf> = None;
     let mut verbose = false;
 
@@ -354,6 +348,9 @@ fn parse_cli() -> Result<CliConfig> {
                     args.get(i).context("--json requires a path")?,
                 ));
             }
+            "--autotune" => {
+                autotune = true;
+            }
             "--verbose" => {
                 verbose = true;
             }
@@ -387,6 +384,11 @@ fn parse_cli() -> Result<CliConfig> {
     if candidates_per_thread == 0 {
         bail!("--candidates-per-thread must be > 0");
     }
+    if candidates_per_thread > MAX_CANDIDATES_PER_THREAD {
+        bail!(
+            "--candidates-per-thread must be <= {MAX_CANDIDATES_PER_THREAD} (kernel inner loop bound)"
+        );
+    }
     if progress_ms == 0 {
         bail!("--progress-ms must be > 0");
     }
@@ -402,6 +404,7 @@ fn parse_cli() -> Result<CliConfig> {
         candidates_per_thread,
         progress_ms,
         max_matches,
+        autotune,
         json,
         verbose,
     })
@@ -522,7 +525,7 @@ fn build_pipelines(device: &Device, kernel_name: &str) -> Result<GpuPipelines> {
 // `Result` and formatted in one place).
 fn run() -> Result<()> {
     // 1) Parse and validate host-side configuration.
-    let cli = parse_cli()?;
+    let mut cli = parse_cli()?;
 
     // Parse once and keep both forms:
     // - raw bytes for CPU validation
@@ -601,6 +604,174 @@ fn run() -> Result<()> {
             out
         };
 
+        // Optional launch-parameter auto-tuning:
+        // benchmark a short synthetic pass on this exact GPU/pipeline and keep the fastest pair.
+        //
+        // Why this exists:
+        //   "Good" values for `threads_per_group` and `candidates_per_thread` depend on
+        //   the actual GPU, the kernel's register pressure, and the workload shape.
+        //   There is no single universally-best pair.
+        //
+        // Old way (manual tuning):
+        //   - Pick values like 256 / 8 because they sound reasonable.
+        //   - Run benchmarks by hand.
+        //   - Hope the chosen pair generalizes across machines.
+        //
+        // New way:
+        //   - Do a short startup sweep on *this* machine.
+        //   - Measure MH/s directly.
+        //   - Reuse the best measured pair for the real search.
+        if cli.autotune {
+            // We benchmark on one representative length within the user's requested range.
+            // Using the longest requested length usually better reflects the steady-state cost.
+            let tune_len = cli.max_len;
+            let tune_candidates = pow_u64(cli.charset.radix() as u64, tune_len)?
+                // Cap the synthetic benchmark so startup tuning finishes quickly.
+                .min(8_000_000);
+
+            // If the search space is tiny there is not much to tune; skip the sweep.
+            if tune_candidates > 0 {
+                let max_tg = pipelines.pipeline.max_total_threads_per_threadgroup() as u32;
+                let tew = pipelines.pipeline.thread_execution_width() as u32;
+
+                // Candidate threadgroup sizes. We include multiples of execution width first,
+                // then common powers of two, and filter invalid/duplicate values below.
+                //
+                // `thread_execution_width` is Metal's SIMD width hint for this pipeline.
+                // Starting with TEW multiples usually gives decent occupancy/coalescing.
+                let mut tpg_candidates = vec![
+                    tew,
+                    tew.saturating_mul(2),
+                    tew.saturating_mul(4),
+                    tew.saturating_mul(8),
+                    64,
+                    128,
+                    256,
+                    512,
+                    1024,
+                ];
+                tpg_candidates.retain(|&x| x > 0 && x <= max_tg);
+                tpg_candidates.sort_unstable();
+                tpg_candidates.dedup();
+
+                // Candidate per-thread batch sizes. The kernel's inner loop is hard-capped at 32.
+                //
+                // Bigger `cpt` means each GPU thread does more serial work before the outer
+                // stride loop advances. That can reduce scheduling/loop overhead, but if we push
+                // it too far it can also hurt occupancy (more live state per thread).
+                let cpt_candidates = [1u32, 2, 4, 8, 16, 32];
+
+                let mut best: Option<(u32, u32, f64)> = None;
+                println!(
+                    "Autotune: len={} candidates={} ({}x{} combinations)",
+                    tune_len,
+                    tune_candidates,
+                    tpg_candidates.len(),
+                    cpt_candidates.len()
+                );
+
+                for &tpg in &tpg_candidates {
+                    for &cpt in &cpt_candidates {
+                        // This is a real kernel dispatch, just with a capped search space and
+                        // "all" mode to avoid an accidental early exit if we happen to hit a match.
+                        // In other words: same kernel, smaller job.
+
+                        // Reset result buffers even though we ignore matches; the kernel may still
+                        // touch them when the benchmark target hash happens to exist in-range.
+                        reset_controls();
+
+                        let tune_params = KernelParams {
+                            len: tune_len,
+                            alphabet: cli.charset as u32,
+                            search_space: tune_candidates,
+                            candidates_per_thread: cpt,
+                            // Use "all" mode to prevent early exit if a lucky match occurs.
+                            mode: MatchMode::All.as_u32(),
+                            // We do not need stored matches for throughput tuning.
+                            max_matches: 0,
+                            target_a: ta,
+                            target_b: tb,
+                            target_c: tc,
+                            target_d: td,
+                            target_e: te,
+                        };
+                        unsafe {
+                            *(params_buf.contents() as *mut KernelParams) = tune_params;
+                        }
+
+                        let threads_per_tg = MTLSize {
+                            width: tpg as u64,
+                            height: 1,
+                            depth: 1,
+                        };
+
+                        // We use the same thread-count heuristic as the real run so autotune
+                        // measures something representative:
+                        //   needed_threads = ceil(search_space / candidates_per_thread)
+                        //
+                        // Then clamp to a practical range for this 1D lesson:
+                        //   - at least 4 threadgroups (so small jobs still exercise the GPU)
+                        //   - at most 65535 threadgroups on X (simple dispatch shape)
+                        let work_per_thread = cpt as u64;
+                        let needed_threads = (tune_candidates + work_per_thread - 1) / work_per_thread;
+                        let min_threads = threads_per_tg.width * 4;
+                        let max_threads = threads_per_tg.width * 65535;
+                        let threads = needed_threads.clamp(min_threads, max_threads);
+                        let threads_per_grid = MTLSize {
+                            width: threads,
+                            height: 1,
+                            depth: 1,
+                        };
+
+                        let gpu_start = Instant::now();
+                        let cmd_buf = pipelines.queue.new_command_buffer();
+                        let enc = cmd_buf.new_compute_command_encoder();
+                        enc.set_compute_pipeline_state(&pipelines.pipeline);
+                        enc.set_buffer(0, Some(&params_buf), 0);
+                        enc.set_buffer(1, Some(&found_flag), 0);
+                        enc.set_buffer(2, Some(&found_index), 0);
+                        enc.set_buffer(3, Some(&match_count), 0);
+                        enc.set_buffer(4, Some(&match_indices), 0);
+                        enc.dispatch_threads(threads_per_grid, threads_per_tg);
+                        enc.end_encoding();
+                        cmd_buf.commit();
+                        cmd_buf.wait_until_completed();
+                        let gpu_ms = gpu_start.elapsed().as_secs_f64() * 1000.0;
+
+                        if gpu_ms > 0.0 {
+                            // MH/s = million candidates hashed per second.
+                            // We use the synthetic benchmark's candidate count here, not the
+                            // user's full search space, because this is just for ranking pairs.
+                            let mh_s =
+                                (tune_candidates as f64) / (gpu_ms / 1000.0) / 1_000_000.0;
+                            if cli.verbose {
+                                println!(
+                                    "  autotune tpg={} cpt={} gpu_ms={:.2} mh/s={:.2}",
+                                    tpg, cpt, gpu_ms, mh_s
+                                );
+                            }
+                            match best {
+                                Some((_, _, best_mh_s)) if mh_s <= best_mh_s => {}
+                                _ => best = Some((tpg, cpt, mh_s)),
+                            }
+                        }
+                    }
+                }
+
+                if let Some((best_tpg, best_cpt, best_mh_s)) = best {
+                    // Mutate the already-parsed CLI config so the rest of `run()` uses the
+                    // selected values transparently. Everything below this point behaves exactly
+                    // like a normal run with explicit `--threads-per-group/--candidates-per-thread`.
+                    cli.threads_per_group = best_tpg;
+                    cli.candidates_per_thread = best_cpt;
+                    println!(
+                        "Autotune selected: threads_per_group={} candidates_per_thread={} ({:.2} MH/s benchmark)",
+                        best_tpg, best_cpt, best_mh_s
+                    );
+                }
+            }
+        }
+
         // Run-wide accounting values used for final summary/JSON output.
         let radix = cli.charset.radix() as u64;
         let wall_start = Instant::now();
@@ -629,12 +800,11 @@ fn run() -> Result<()> {
             // Fill the kernel parameter block for this length and target hash.
             let params = KernelParams {
                 len,
-                radix: cli.charset.radix(),
+                alphabet: cli.charset as u32,
                 search_space: candidates,
                 candidates_per_thread: cli.candidates_per_thread,
                 mode: cli.mode.as_u32(),
                 max_matches: cli.max_matches,
-                alphabet_id: cli.charset.alphabet_id(),
                 target_a: ta,
                 target_b: tb,
                 target_c: tc,
