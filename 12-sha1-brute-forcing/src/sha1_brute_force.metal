@@ -46,6 +46,34 @@ inline uint load_be_u32(const thread uchar *p) {
         | (uint)p[3];
 }
 
+// Pretend the fully padded 64-byte SHA-1 block exists, without actually allocating/copying it.
+//
+// This lesson only supports single-block SHA-1 (len <= 55), so the virtual block layout is:
+//   [0 .. len-1]   = original message bytes (`msg`)
+//   [len]          = 0x80
+//   [len+1 .. 55]  = 0x00
+//   [56 .. 63]     = 64-bit big-endian bit length
+//
+// Why do this?
+//   `msg` in the kernel is only 55 bytes long (see the caller), so we cannot "just pad it in-place"
+//   into a 64-byte SHA-1 block without changing the caller buffers. Instead we synthesize the bytes
+//   on demand while building W[0..15]. Same bytes as before, less thread-local setup work.
+inline uchar sha1_one_block_padded_byte(const thread uchar *msg, uint len, uint i) {
+    if (i < len) {
+        return msg[i];
+    }
+    if (i == len) {
+        return (uchar)0x80u;
+    }
+    if (i >= 56u) {
+        // SHA-1 stores message length as a 64-bit big-endian *bit* length in the final 8 bytes.
+        ulong bit_len = (ulong)len * 8ul;
+        uint shift = (63u - i) * 8u;
+        return (uchar)((bit_len >> (ulong)shift) & 0xfful);
+    }
+    return (uchar)0u;
+}
+
 inline uint sha1_f(uint t, uint b, uint c, uint d) {
     if (t < 20u) return (b & c) | ((~b) & d);
     if (t < 40u) return b ^ c ^ d;
@@ -156,26 +184,35 @@ inline void sha1_one_block(
     thread uint &e
 ) {
 
-    // We will build the block in thread-local memory.
-    thread uchar block[64];
-    for (uint i = 0; i < 64; i++) {
-        block[i] = 0u;
-    }
-
-    // Let's copy the message bytes to the block.
-    for (uint i = 0; i < len; i++) {
-        block[i] = msg[i];
-    }
-
-    // Time for padding!
-    block[len] = 0x80u;
-
-    // SHA-1 length field is 64-bit big-endian bit length.
-    ulong bit_len = (ulong)len * 8ul;
-    for (uint i = 0; i < 8; i++) {
-        block[56 + i] = (uchar)((bit_len >> (56ul - 8ul * (ulong)i)) & 0xfful);
-    }
-
+    // Old code (kept for reference / correctness comparison).
+    // This is the straightforward way: materialize the padded 64-byte SHA-1 block in thread-local memory,
+    // then load W[0..15] from it.
+    //
+    // It is correct, but it does extra work every hash:
+    //   - zero 64 bytes
+    //   - copy `len` bytes from msg
+    //   - write padding + length field
+    //
+    // We now skip the actual `block[64]` buffer and synthesize those exact same bytes on demand.
+    //
+    // thread uchar block[64];
+    // for (uint i = 0; i < 64; i++) {
+    //     block[i] = 0u;
+    // }
+    //
+    // // Let's copy the message bytes to the block.
+    // for (uint i = 0; i < len; i++) {
+    //     block[i] = msg[i];
+    // }
+    //
+    // // Time for padding!
+    // block[len] = 0x80u;
+    //
+    // // SHA-1 length field is 64-bit big-endian bit length.
+    // ulong bit_len = (ulong)len * 8ul;
+    // for (uint i = 0; i < 8; i++) {
+    //     block[56 + i] = (uchar)((bit_len >> (56ul - 8ul * (ulong)i)) & 0xfful);
+    // }
 
     // I had a uint[80] before but ChatGPT told me I could use a ring buffer yeah that thing from second year.
     // Holy shit how much weed did i smoke between uni and now??
@@ -193,8 +230,29 @@ inline void sha1_one_block(
     thread uint w[16];
 
     // Now we can do the black magic.
+    //
+    // New path:
+    //   We pretend the padded 64-byte block exists and read bytes from that imaginary block.
+    //   That means SHA-1 sees *exactly* the same bytes as the old `block[64]` path, but we avoid
+    //   the local array + zero/copy setup. This is the "reuse msg buffer" version without needing
+    //   to make `msg` 64 bytes in the caller.
+    //
+    // Old line (kept above in comments) was:
+    //   w[t] = load_be_u32(&block[t * 4u]);
+    //
+    // New line does the same thing manually:
+    //   - read 4 consecutive bytes from the virtual padded block
+    //   - pack them as one big-endian 32-bit word
     for (uint t = 0; t < 16; t++) {
-        w[t] = load_be_u32(&block[t * 4u]);
+        uint base = t * 4u;
+        uchar b0 = sha1_one_block_padded_byte(msg, len, base + 0u);
+        uchar b1 = sha1_one_block_padded_byte(msg, len, base + 1u);
+        uchar b2 = sha1_one_block_padded_byte(msg, len, base + 2u);
+        uchar b3 = sha1_one_block_padded_byte(msg, len, base + 3u);
+        w[t] = ((uint)b0 << 24)
+             | ((uint)b1 << 16)
+             | ((uint)b2 << 8)
+             | (uint)b3;
     }
 
     // SHA-1 initial hash values.
