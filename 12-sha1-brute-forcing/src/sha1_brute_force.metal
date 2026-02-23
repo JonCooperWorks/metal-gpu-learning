@@ -88,6 +88,25 @@ inline uint sha1_k(uint t) {
     return 0xCA62C1D6u;
 }
 
+// Ring-buffer schedule helper for SHA-1.
+//
+// This preserves the exact 16-word ring-buffer behavior used previously:
+//   - for t < 16: W[t] is the preloaded message word
+//   - for t >= 16: W[t] = rol1(W[t-3] ^ W[t-8] ^ W[t-14] ^ W[t-16])
+//
+// We keep this separate so the 4x20 round loops can use fixed round functions/constants
+// without reintroducing branchy `sha1_f(t)` / `sha1_k(t)` calls in the hot round body.
+inline uint sha1_schedule_ring_word(thread uint *w, uint t) {
+    if (t < 16u) {
+        return w[t];
+    }
+
+    uint s = t & 15u;
+    uint wt = rotl(w[(s + 13u) & 15u] ^ w[(s + 8u) & 15u] ^ w[(s + 2u) & 15u] ^ w[s], 1u);
+    w[s] = wt;
+    return wt;
+}
+
 // Map a numeric candidate index to:
 //   - `digits[i]`: the i-th base-26 digit (least-significant digit first)
 //   - `msg[i]`: the corresponding ASCII byte
@@ -229,31 +248,67 @@ inline void sha1_one_block(
     // some black magic to make it work much faster.
     thread uint w[16];
 
-    // Now we can do the black magic.
+    // Older "virtual padded byte" path (kept as a reference implementation).
     //
-    // New path:
-    //   We pretend the padded 64-byte block exists and read bytes from that imaginary block.
-    //   That means SHA-1 sees *exactly* the same bytes as the old `block[64]` path, but we avoid
-    //   the local array + zero/copy setup. This is the "reuse msg buffer" version without needing
-    //   to make `msg` 64 bytes in the caller.
+    // It is correct and conceptually nice for teaching because it exactly mirrors
+    // "read bytes from an imaginary padded 64-byte block". The downside is that it
+    // performs 64 helper calls + several branches while building only 16 words.
     //
-    // Old line (kept above in comments) was:
-    //   w[t] = load_be_u32(&block[t * 4u]);
+    // for (uint t = 0; t < 16; t++) {
+    //     uint base = t * 4u;
+    //     uchar b0 = sha1_one_block_padded_byte(msg, len, base + 0u);
+    //     uchar b1 = sha1_one_block_padded_byte(msg, len, base + 1u);
+    //     uchar b2 = sha1_one_block_padded_byte(msg, len, base + 2u);
+    //     uchar b3 = sha1_one_block_padded_byte(msg, len, base + 3u);
+    //     w[t] = ((uint)b0 << 24)
+    //          | ((uint)b1 << 16)
+    //          | ((uint)b2 << 8)
+    //          | (uint)b3;
+    // }
+
+    // New faster path: synthesize W[0..15] directly as words.
     //
-    // New line does the same thing manually:
-    //   - read 4 consecutive bytes from the virtual padded block
-    //   - pack them as one big-endian 32-bit word
-    for (uint t = 0; t < 16; t++) {
-        uint base = t * 4u;
-        uchar b0 = sha1_one_block_padded_byte(msg, len, base + 0u);
-        uchar b1 = sha1_one_block_padded_byte(msg, len, base + 1u);
-        uchar b2 = sha1_one_block_padded_byte(msg, len, base + 2u);
-        uchar b3 = sha1_one_block_padded_byte(msg, len, base + 3u);
-        w[t] = ((uint)b0 << 24)
-             | ((uint)b1 << 16)
-             | ((uint)b2 << 8)
-             | (uint)b3;
+    // Why this is equivalent (single-block SHA-1, len <= 55):
+    //   - The real padded 64-byte block is:
+    //       [msg bytes][0x80][zeroes ...][64-bit bit length]
+    //   - We do not need the intermediate `block[64]` or virtual-byte accessor if we can
+    //     place bytes directly into their final big-endian word slots.
+    //
+    // Word/byte lane math for SHA-1 big-endian packing:
+    //   - `i >> 2` picks which 32-bit word the byte belongs to (i / 4)
+    //   - `(i & 3)` picks which byte lane within that word (i % 4)
+    //   - shift = 24,16,8,0 so the first byte goes to the MSB lane
+    //
+    // This avoids 64 per-byte branchy reads. We still produce the exact same W[0..15]
+    // contents the virtual padded block path would have produced.
+    for (uint t = 0; t < 16u; t++) {
+        w[t] = 0u;
     }
+
+    for (uint i = 0; i < len; i++) {
+        uint word_index = i >> 2u;
+        uint shift = 24u - ((i & 3u) * 8u);
+        w[word_index] |= ((uint)msg[i] << shift);
+    }
+
+    // Insert the mandatory SHA-1 padding byte (10000000b) immediately after the message.
+    // This lands in whichever word/lane `len` points at.
+    {
+        uint pad_word = len >> 2u;
+        uint pad_shift = 24u - ((len & 3u) * 8u);
+        w[pad_word] |= (0x80u << pad_shift);
+    }
+
+    // Single-block assumption (lesson scope): len <= 55.
+    //
+    // Therefore the 64-bit bit-length field always occupies bytes 56..63. Since len*8 <= 440,
+    // the high 32 bits are zero, so:
+    //   W[14] = 0
+    //   W[15] = len * 8
+    //
+    // We write them explicitly to document the layout and avoid any ambiguity.
+    w[14] = 0u;
+    w[15] = len << 3u;
 
     // SHA-1 initial hash values.
     // We use them because the spec said so - I leave that to smarter people than me.
@@ -270,25 +325,76 @@ inline void sha1_one_block(
     d = h3;
     e = h4;
 
-    // More black magic fuckery.
-    // The spec said so and I believe them.
-    for (uint t = 0; t < 80; t++) {
-        uint wt;
-        if (t < 16u) {
-            wt = w[t];
-        } else {
-            uint s = t & 15u;
-            // Ring buffer voodoo annotation:
-            //   s            == t mod 16       (slot for W[t] / old W[t-16])
-            //   (s + 13) & 15 == (t - 3) mod 16
-            //   (s + 8)  & 15 == (t - 8) mod 16
-            //   (s + 2)  & 15 == (t - 14) mod 16
-            // SHA-1 schedule: W[t] = rol1(W[t-3] ^ W[t-8] ^ W[t-14] ^ W[t-16]).
-            wt = rotl(w[(s + 13u) & 15u] ^ w[(s + 8u) & 15u] ^ w[(s + 2u) & 15u] ^ w[s], 1u);
-            w[s] = wt;
-        }
+    // Older single-loop round core (kept for reference / correctness comparison).
+    //
+    // It is compact and correct, but each round branches indirectly through `sha1_f(t,...)`
+    // and `sha1_k(t)`, so the compiler has more control flow to chew on in the hot path.
+    //
+    // for (uint t = 0; t < 80; t++) {
+    //     uint wt;
+    //     if (t < 16u) {
+    //         wt = w[t];
+    //     } else {
+    //         uint s = t & 15u;
+    //         wt = rotl(w[(s + 13u) & 15u] ^ w[(s + 8u) & 15u] ^ w[(s + 2u) & 15u] ^ w[s], 1u);
+    //         w[s] = wt;
+    //     }
+    //
+    //     uint temp = rotl(a, 5u) + sha1_f(t, b, c, d) + e + sha1_k(t) + wt;
+    //     e = d;
+    //     d = c;
+    //     c = rotl(b, 30u);
+    //     b = a;
+    //     a = temp;
+    // }
 
-        uint temp = rotl(a, 5u) + sha1_f(t, b, c, d) + e + sha1_k(t) + wt;
+    // New round core: same SHA-1 math, but split into four 20-round segments.
+    //
+    // Why this helps:
+    //   - SHA-1 changes function/constant only at round boundaries 20/40/60.
+    //   - By splitting the loop, the round body uses fixed logic (`Ch`, `Parity`, `Maj`)
+    //     and fixed constants instead of branching on `t` every iteration.
+    //   - The message schedule still comes from the same 16-word ring buffer helper.
+    //
+    // Round groups:
+    //   0..19  : Ch     + 0x5A827999
+    //   20..39 : Parity + 0x6ED9EBA1
+    //   40..59 : Maj    + 0x8F1BBCDC
+    //   60..79 : Parity + 0xCA62C1D6
+    for (uint t = 0u; t < 20u; t++) {
+        uint wt = sha1_schedule_ring_word(w, t);
+        uint f = (b & c) | ((~b) & d); // Ch (choose)
+        uint temp = rotl(a, 5u) + f + e + 0x5A827999u + wt;
+        e = d;
+        d = c;
+        c = rotl(b, 30u);
+        b = a;
+        a = temp;
+    }
+    for (uint t = 20u; t < 40u; t++) {
+        uint wt = sha1_schedule_ring_word(w, t);
+        uint f = b ^ c ^ d; // Parity
+        uint temp = rotl(a, 5u) + f + e + 0x6ED9EBA1u + wt;
+        e = d;
+        d = c;
+        c = rotl(b, 30u);
+        b = a;
+        a = temp;
+    }
+    for (uint t = 40u; t < 60u; t++) {
+        uint wt = sha1_schedule_ring_word(w, t);
+        uint f = (b & c) | (b & d) | (c & d); // Maj (majority)
+        uint temp = rotl(a, 5u) + f + e + 0x8F1BBCDCu + wt;
+        e = d;
+        d = c;
+        c = rotl(b, 30u);
+        b = a;
+        a = temp;
+    }
+    for (uint t = 60u; t < 80u; t++) {
+        uint wt = sha1_schedule_ring_word(w, t);
+        uint f = b ^ c ^ d; // Parity
+        uint temp = rotl(a, 5u) + f + e + 0xCA62C1D6u + wt;
         e = d;
         d = c;
         c = rotl(b, 30u);
